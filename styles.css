@@ -1,0 +1,173 @@
+/* Fuentes de Google */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap');
+
+/* Variables de color */
+:root {
+  --bg: #0d0a14;
+  --dorado: #c9a84c;
+  --rosa: #d4849a;
+  --lavanda: #b8a0d4;
+  --crema: #f0e8d8;
+  --gris: #8a7aa0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--crema);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px;
+}
+
+.contenedor {
+  text-align: center;
+  padding: 40px 24px;
+  max-width: 620px;
+  width: 100%;
+}
+
+h1 {
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: 2rem;
+  color: var(--dorado);
+  margin-bottom: 12px;
+}
+
+.subtitulo {
+  font-style: italic;
+  color: var(--gris);
+  margin-bottom: 32px;
+  font-size: 1.1rem;
+}
+
+input {
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,168,76,0.4);
+  color: var(--crema);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  font-style: italic;
+  text-align: center;
+  outline: none;
+  margin-bottom: 16px;
+}
+
+input:focus {
+  border-color: var(--dorado);
+  box-shadow: 0 0 20px rgba(201,168,76,0.2);
+}
+
+button {
+  padding: 12px 40px;
+  background: transparent;
+  border: 1px solid var(--dorado);
+  color: var(--dorado);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background: rgba(201,168,76,0.1);
+  box-shadow: 0 0 30px rgba(201,168,76,0.2);
+}
+
+#resultado {
+  margin-top: 40px;
+}
+
+h2 {
+  font-family: 'Cinzel Decorative', cursive;
+  color: var(--dorado);
+  font-size: 1.2rem;
+  margin-bottom: 24px;
+}
+
+/* Flores normales */
+.flor {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.emoji {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.nombre-flor {
+  color: var(--dorado);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.significado {
+  color: var(--gris);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Ramo de Eva - dos columnas */
+.ramo-eva-contenedor {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+
+.ramo-eva-contenedor .ramo-imagen {
+  width: 260px;
+  min-width: 260px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 20px rgba(201,168,76,0.4));
+  animation: aparecer 0.8s ease forwards;
+}
+
+.ramo-eva-significados {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.ramo-eva-significados .flor {
+  gap: 12px;
+  margin-bottom: 0;
+}
+
+.ramo-eva-significados .emoji {
+  font-size: 1.8rem;
+}
+
+.ramo-eva-significados .nombre-flor {
+  font-size: 1.05rem;
+}
+
+.ramo-eva-significados .significado {
+  font-size: 0.95rem;
+}
+
+/* Animación */
+@keyframes aparecer {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}

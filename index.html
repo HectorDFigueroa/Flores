@@ -33,12 +33,17 @@
   <main class="contenedor">
 
     <section class="tarjeta" id="tarjeta-principal">
+      <!-- Iniciar sesión / perfil (lo llena app.js cuando Firebase está listo) -->
+      <div class="sesion" id="sesion"></div>
+      <p class="aviso-sesion" id="aviso-sesion" role="status" aria-live="polite"></p>
+
       <p class="antetitulo">✦ un jardín que florece con tu nombre ✦</p>
       <h1>Tu Ramo Mágico</h1>
 
       <div class="pestanas" role="tablist" aria-label="¿Qué quieres hacer?">
         <button type="button" role="tab" id="tab-descubrir" data-panel="descubrir" aria-controls="panel-descubrir" aria-selected="true">Descubre tu ramo</button>
         <button type="button" role="tab" id="tab-taller" data-panel="taller" aria-controls="panel-taller" aria-selected="false" tabindex="-1">Envía un regalo ✉</button>
+        <button type="button" role="tab" id="tab-jardin" data-panel="jardin" aria-controls="panel-jardin" aria-selected="false" tabindex="-1">Mi jardín 🌙</button>
       </div>
 
       <!-- Descubre tu ramo -->
@@ -95,6 +100,7 @@
             <input type="date" id="t-fecha" />
           </label>
 
+          <p class="nota-jardin nota-taller" id="t-nota-sesion"></p>
           <p id="t-error" class="mensaje" role="status" aria-live="polite"></p>
 
           <div class="taller-acciones">
@@ -102,6 +108,34 @@
             <button type="submit">Crear regalo <span aria-hidden="true">✉</span></button>
           </div>
         </form>
+      </div>
+
+      <!-- Mi jardín -->
+      <div id="panel-jardin" role="tabpanel" aria-labelledby="tab-jardin" hidden>
+        <p class="subtitulo">Los ramos que descubres, envías y recibes quedan plantados aquí</p>
+
+        <aside class="flor-del-dia" id="flor-del-dia" aria-label="Flor del día">
+          <span class="flor-dia-emoji" aria-hidden="true"></span>
+          <div>
+            <p class="flor-dia-etiqueta">Flor del día</p>
+            <p class="flor-dia-nombre"></p>
+            <p class="flor-dia-significado"></p>
+          </div>
+        </aside>
+
+        <div class="jardin-cabecera">
+          <p class="jardin-contador" id="jardin-contador"></p>
+          <div class="jardin-filtros" id="jardin-filtros" role="group" aria-label="Filtrar ramos">
+            <button type="button" data-filtro="todos" aria-pressed="true">Todos</button>
+            <button type="button" data-filtro="descubierto" aria-pressed="false">Míos</button>
+            <button type="button" data-filtro="enviado" aria-pressed="false">Enviados</button>
+            <button type="button" data-filtro="recibido" aria-pressed="false">Recibidos</button>
+          </div>
+        </div>
+
+        <div class="jardin-lista" id="jardin-lista"></div>
+
+        <p class="nota-jardin" id="nota-jardin"></p>
       </div>
     </section>
 
@@ -140,6 +174,9 @@
   <script src="js/ramo.js"></script>
   <script src="js/imagen.js"></script>
   <script src="js/regalo.js"></script>
+  <script src="js/jardin.js"></script>
   <script src="js/app.js"></script>
+  <!-- Firebase: sesión con Google, jardín en la nube y regalos guardados -->
+  <script type="module" src="js/nube.js"></script>
 </body>
 </html>

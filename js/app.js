@@ -79,7 +79,7 @@ function enlaceDelRamo(nombre) {
   return url.toString();
 }
 
-function mostrarRamo(nombre, ramo, especial) {
+function mostrarRamo(nombre, ramo, especial, semilla) {
   const adorno = especial ? "👑" : "✦";
   const titulo = document.createElement("h2");
   titulo.textContent = `${adorno} El Ramo de ${nombre} ${adorno}`;
@@ -95,12 +95,12 @@ function mostrarRamo(nombre, ramo, especial) {
     dedicatoria.textContent = "Un ramo que no florece para nadie más en el mundo";
     partes.push(dedicatoria);
   }
-  partes.push(lista, crearAccionesRamo(nombre, ramo, especial));
+  partes.push(lista, crearAccionesRamo(nombre, ramo, especial, semilla));
 
   document.getElementById("resultado").replaceChildren(...partes);
 }
 
-function crearAccionesRamo(nombre, ramo, especial) {
+function crearAccionesRamo(nombre, ramo, especial, semilla) {
   const zona = document.createElement("div");
   zona.className = "compartir";
 
@@ -138,9 +138,26 @@ function crearAccionesRamo(nombre, ramo, especial) {
     aviso
   );
 
+  const plantar = crearBoton("🌱 Plantar en mi jardín", async () => {
+    plantar.disabled = true;
+    const ok = await plantarRamoDescubierto(nombre, ramo, semilla, especial);
+    if (ok) {
+      plantar.textContent = "✓ Está en tu jardín";
+    } else {
+      plantar.disabled = false;
+      aviso.textContent = "No se pudo guardar en este navegador 😔";
+    }
+  });
+  estaEnJardin(`descubierto:${normalizarNombre(nombre)}`).then((ya) => {
+    if (ya) {
+      plantar.disabled = true;
+      plantar.textContent = "✓ Está en tu jardín";
+    }
+  });
+
   const fila = document.createElement("div");
   fila.className = "fila-botones";
-  fila.append(compartir, imagen);
+  fila.append(compartir, imagen, plantar);
   zona.append(fila, aviso);
   return zona;
 }
@@ -159,13 +176,14 @@ function revelar({ desplazar = true } = {}) {
   const esEva = clave.split(" ")[0] === "eva";
 
   if (esEva) {
-    dibujarRamo(ramoEva, hashTexto("eva"), nombre, ESTILO_EVA);
-    mostrarRamo(nombre, ramoEva, true);
+    const semilla = hashTexto("eva");
+    dibujarRamo(ramoEva, semilla, nombre, ESTILO_EVA);
+    mostrarRamo(nombre, ramoEva, true, semilla);
   } else {
     const semilla = hashTexto(clave);
     const ramo = elegirFlores(semilla);
     dibujarRamo(ramo, semilla, nombre, ESTILO_NORMAL);
-    mostrarRamo(nombre, ramo, false);
+    mostrarRamo(nombre, ramo, false, semilla);
   }
 
   // La barra de direcciones queda con el enlace de este ramo
@@ -212,6 +230,9 @@ function cambiarPestana(nombre, { enfocar = false } = {}) {
     }
     actualizarVistaPrevia();
     history.replaceState(null, "", `${base}?crear=1`);
+  } else if (nombre === "jardin") {
+    mostrarJardin();
+    history.replaceState(null, "", `${base}?jardin=1`);
   } else {
     history.replaceState(null, "", base);
   }
@@ -283,19 +304,125 @@ function crearCielo() {
 }
 
 
+// ---------- Sesión (Google) ----------
+
+const ICONO_GOOGLE =
+  '<svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true">' +
+  '<path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6C12.4 13.7 17.7 9.5 24 9.5z"/>' +
+  '<path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/>' +
+  '<path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.8-6C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6z"/>' +
+  '<path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.8 6C6.6 42.6 14.6 48 24 48z"/>' +
+  "</svg>";
+
+function avisoSesion(texto) {
+  const aviso = document.getElementById("aviso-sesion");
+  aviso.textContent = texto;
+  clearTimeout(avisoSesion.espera);
+  avisoSesion.espera = setTimeout(() => (aviso.textContent = ""), 6000);
+}
+
+function explicarErrorSesion(error) {
+  const mensajes = {
+    "auth/unauthorized-domain": "Esta dirección no está autorizada en Firebase (Authentication → Dominios autorizados).",
+    "auth/network-request-failed": "Sin conexión. Revisa tu internet e inténtalo de nuevo.",
+    "auth/operation-not-allowed": "El inicio de sesión con Google no está activado en Firebase.",
+  };
+  return mensajes[error.code] || "No se pudo iniciar sesión. Inténtalo de nuevo.";
+}
+
+function mostrarSesion(usuario) {
+  const caja = document.getElementById("sesion");
+  if (!window.nube) {
+    caja.replaceChildren();
+    return;
+  }
+
+  if (!usuario) {
+    const entrar = document.createElement("button");
+    entrar.type = "button";
+    entrar.className = "boton-sesion";
+    entrar.innerHTML = ICONO_GOOGLE;
+    entrar.append(" Iniciar sesión");
+    entrar.addEventListener("click", async () => {
+      entrar.disabled = true;
+      try {
+        await nube.iniciarSesion();
+      } catch (error) {
+        console.error("Error al iniciar sesión", error);
+        avisoSesion(explicarErrorSesion(error));
+      } finally {
+        entrar.disabled = false;
+      }
+    });
+    caja.replaceChildren(entrar);
+    return;
+  }
+
+  const perfil = document.createElement("span");
+  perfil.className = "perfil";
+  if (usuario.photoURL) {
+    const foto = document.createElement("img");
+    foto.src = usuario.photoURL;
+    foto.alt = "";
+    foto.referrerPolicy = "no-referrer";   // las fotos de Google lo necesitan
+    perfil.append(foto);
+  }
+  const nombre = document.createElement("span");
+  nombre.textContent = (usuario.displayName || usuario.email || "").split(" ")[0];
+  perfil.append(nombre);
+
+  const salir = document.createElement("button");
+  salir.type = "button";
+  salir.className = "boton-sesion";
+  salir.textContent = "Salir";
+  salir.addEventListener("click", () => nube.cerrarSesion());
+
+  caja.replaceChildren(perfil, salir);
+}
+
+window.addEventListener("sesion-cambio", async (evento) => {
+  const usuario = evento.detail;
+  mostrarSesion(usuario);
+  actualizarNotaTaller();
+
+  if (usuario) {
+    try {
+      const movidos = await moverJardinLocalALaNube();
+      if (movidos > 0) {
+        avisoSesion(`🌱 Pasamos ${movidos === 1 ? "1 ramo" : `${movidos} ramos`} de este navegador a tu cuenta`);
+      }
+    } catch (error) {
+      console.error("No se pudo mover el jardín a la nube", error);
+    }
+  }
+
+  // Si el jardín está a la vista, se recarga con los ramos de la cuenta
+  if (!document.getElementById("panel-jardin").hidden) mostrarJardin();
+});
+
+
 // ---------- Arranque: ¿qué muestra el enlace? ----------
-//  ?regalo=...  -> sobre con un regalo
-//  ?crear=1     -> taller de regalos
-//  ?nombre=Ana  -> ramo de Ana
+//  ?r=Xb7kQ2pA                 -> regalo guardado en Firebase
+//  ?regalo=...                 -> regalo completo dentro del enlace
+//  ?crear=1[&para=X&de=Y]      -> taller de regalos (con "para" y "de" ya escritos)
+//  ?jardin=1                   -> mi jardín
+//  ?nombre=Ana                 -> ramo de Ana
 
 function iniciar() {
   crearCielo();
+  prepararJardin();
+  actualizarNotaTaller();
   const parametros = new URLSearchParams(window.location.search);
+
+  if (parametros.has("r")) {
+    abrirRegaloDelServidor(parametros.get("r"));
+    return;
+  }
 
   if (parametros.has("regalo")) {
     const regalo = decodificarRegalo(parametros.get("regalo"));
     if (regalo) {
-      abrirVistaRegalo(regalo);
+      abrirVistaRegalo(regalo, async () => regalo, claveDeRegalo(regalo));
       return;
     }
     mostrarMensaje("Este enlace de regalo está incompleto o dañado 😔");
@@ -304,6 +431,17 @@ function iniciar() {
 
   if (parametros.has("crear")) {
     cambiarPestana("taller");
+    // "Responder con un ramo" llega con los nombres ya puestos
+    const para = (parametros.get("para") || "").trim().slice(0, 40);
+    const de = (parametros.get("de") || "").trim().slice(0, 40);
+    if (para) campos.para.value = para;
+    if (de) campos.de.value = de;
+    if (para) actualizarVistaPrevia();
+    return;
+  }
+
+  if (parametros.has("jardin")) {
+    cambiarPestana("jardin");
     return;
   }
 

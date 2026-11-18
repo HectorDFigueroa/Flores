@@ -17,9 +17,13 @@
 - 🔒 Regalos sellados con cuenta regresiva hasta la fecha elegida
 - 🔗 Enlaces directos (`?nombre=Ana`) y códigos QR para compartir
 - 📷 Guarda cualquier ramo como imagen lista para redes sociales
+- 💌 Responde a un regalo con otro ramo en un clic
+- 🌙 **Mi jardín:** colección de ramos descubiertos, enviados y recibidos, más la flor del día
 - 📱 Diseño responsive para móvil y escritorio
 
-> Todo funciona sin servidor: los datos del regalo viajan dentro del enlace.
+- 🔐 **Inicio de sesión con Google** (Firebase): jardín en la nube, enlaces cortos y sellos de fecha que nadie puede saltarse
+
+> Sin iniciar sesión todo sigue funcionando: el jardín se guarda en el navegador y el regalo viaja dentro del enlace.
 
 ---
 
@@ -34,7 +38,10 @@ tu-ramo-magico/
     ├── ramo.js      # Lógica del ramo y dibujo con p5.js
     ├── imagen.js    # Imagen para descargar y código QR
     ├── regalo.js    # Taller de regalos y sobre sellado
-    └── app.js       # Pestañas, "Descubre tu ramo" y arranque
+    ├── jardin.js    # Mi jardín: ramos guardados y flor del día
+    ├── app.js       # Pestañas, sesión, "Descubre tu ramo" y arranque
+    └── nube.js      # Firebase: inicio de sesión con Google, jardín y regalos en la nube
+firestore.rules      # Reglas de seguridad de la base de datos (se pegan en la consola de Firebase)
 ```
 
 ---

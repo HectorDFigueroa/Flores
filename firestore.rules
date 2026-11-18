@@ -1,0 +1,71 @@
+rules_version = '2';
+
+// =====================================================
+//  Reglas de seguridad de Tu Ramo Mágico
+//  Se pegan en: Firebase → Firestore Database → Reglas → Publicar
+// =====================================================
+//
+// Todo lo que no esté permitido aquí está prohibido.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Jardín de cada persona ----------
+    // Solo el dueño de la cuenta puede ver, guardar y borrar sus ramos.
+    match /usuarios/{uid}/jardin/{planta} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(
+             ['id', 'tipo', 'nombre', 'de', 'especial', 'flores', 'fecha', 'enlace', 'miniatura', 'creado'])
+        && request.resource.data.tipo in ['descubierto', 'enviado', 'recibido']
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 200
+        && request.resource.data.enlace is string && request.resource.data.enlace.size() <= 4000
+        // la miniatura es una imagen JPG pequeña (unos 12 KB)
+        && (!('miniatura' in request.resource.data)
+            || (request.resource.data.miniatura is string && request.resource.data.miniatura.size() < 150000));
+    }
+
+    // ---------- Regalos ----------
+    // El sobre (para, de, fecha): lo puede ver cualquiera que tenga el enlace.
+    // Nadie puede listar todos los regalos ni modificarlos después de creados.
+    match /regalos/{id} {
+      allow get: if true;
+      allow list, update: if false;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['para', 'de', 'fecha', 'apertura', 'autor', 'creado'])
+        && request.resource.data.autor == request.auth.uid
+        && request.resource.data.para is string
+        && request.resource.data.para.size() > 0 && request.resource.data.para.size() <= 200
+        && request.resource.data.de is string && request.resource.data.de.size() <= 200
+        && request.resource.data.fecha is string && request.resource.data.fecha.size() <= 10
+        && request.resource.data.apertura is timestamp
+        && request.resource.data.creado == request.time;
+
+      allow delete: if request.auth != null && resource.data.autor == request.auth.uid;
+
+      // El contenido (flores y mensaje) solo se puede leer desde la fecha de apertura.
+      // La hora la pone el servidor (request.time), así que no se puede adelantar
+      // cambiando el reloj del celular.
+      match /privado/{documento} {
+        allow get: if request.time >= get(/databases/$(database)/documents/regalos/$(id)).data.apertura;
+        allow list, update: if false;
+
+        allow create: if request.auth != null
+          && documento == 'contenido'
+          && getAfter(/databases/$(database)/documents/regalos/$(id)).data.autor == request.auth.uid
+          && request.resource.data.keys().hasOnly(['flores', 'papel', 'lazo', 'semilla', 'mensaje'])
+          && request.resource.data.flores is list
+          && request.resource.data.flores.size() >= 1 && request.resource.data.flores.size() <= 6
+          && request.resource.data.papel is int
+          && request.resource.data.lazo is int
+          && request.resource.data.semilla is int
+          && request.resource.data.mensaje is string && request.resource.data.mensaje.size() <= 1000;
+
+        allow delete: if request.auth != null
+          && get(/databases/$(database)/documents/regalos/$(id)).data.autor == request.auth.uid;
+      }
+    }
+  }
+}

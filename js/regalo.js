@@ -283,7 +283,22 @@ function descartarRegaloListo() {
   if (listo) listo.remove();
 }
 
-function crearRegalo() {
+function enlaceCorto(id) {
+  const url = new URL(window.location.href);
+  url.search = `?r=${id}`;
+  url.hash = "";
+  return url.toString();
+}
+
+function actualizarNotaTaller() {
+  const nota = document.getElementById("t-nota-sesion");
+  if (!nota) return;
+  nota.textContent = hayCuenta()
+    ? "✓ Con tu cuenta, el enlace es corto y el regalo se guarda en el servidor: nadie puede leerlo antes de la fecha."
+    : "Consejo: inicia sesión para crear enlaces cortos y sellos que nadie puede abrir antes de tiempo.";
+}
+
+async function crearRegalo() {
   const regalo = leerTaller();
   if (!regalo.para) {
     campos.error.textContent = "¿Para quién es el ramo? Escribe su nombre ✿";
@@ -294,10 +309,47 @@ function crearRegalo() {
     campos.error.textContent = "Elige al menos una flor ✿";
     return;
   }
-  mostrarRegaloListo(regalo, enlaceDelRegalo(regalo));
+
+  let url = null;
+  let clave = null;
+  let enServidor = false;
+
+  // Con sesión: el regalo se guarda en Firebase y el enlace es corto (?r=...)
+  if (hayCuenta()) {
+    const boton = campos.form.querySelector('button[type="submit"]');
+    boton.disabled = true;
+    campos.error.textContent = "Guardando tu regalo…";
+    try {
+      const apertura = fechaDeApertura(regalo.fecha);
+      const id = await nube.crearRegalo(regalo, apertura ? apertura.getTime() : 0);
+      url = enlaceCorto(id);
+      clave = claveDeRegalo(regalo, id);
+      enServidor = true;
+      campos.error.textContent = "";
+    } catch (error) {
+      console.error("No se pudo guardar el regalo en la nube", error);
+      campos.error.textContent = "No pudimos guardarlo en tu cuenta; te damos un enlace largo que funciona igual.";
+    } finally {
+      boton.disabled = false;
+    }
+  }
+
+  // Sin sesión (o si la nube falló): todo el regalo viaja dentro del enlace
+  if (!url) {
+    url = enlaceDelRegalo(regalo);
+    clave = claveDeRegalo(regalo);
+  }
+
+  mostrarRegaloListo(regalo, url, enServidor);
+
+  // Queda guardado en "Mi jardín" para volver a copiar el enlace cuando quieras
+  plantarRegalo("enviado", regalo, url, clave).then((ok) => {
+    const aviso = document.querySelector(".regalo-listo .aviso-compartir");
+    if (ok && aviso && !aviso.textContent) aviso.textContent = "🌱 También quedó guardado en tu jardín";
+  });
 }
 
-function mostrarRegaloListo(regalo, url) {
+function mostrarRegaloListo(regalo, url, enServidor) {
   const seccion = document.createElement("div");
   seccion.className = "regalo-listo-seccion";
 
@@ -306,8 +358,9 @@ function mostrarRegaloListo(regalo, url) {
 
   const explicacion = document.createElement("p");
   explicacion.className = "dedicatoria";
-  explicacion.textContent = regalo.fecha && fechaDeApertura(regalo.fecha) > new Date()
-    ? `Quedará sellado hasta el ${fechaLegible(regalo.fecha)}. Envíale el enlace o el código QR.`
+  const sellado = regalo.fecha && fechaDeApertura(regalo.fecha) > new Date();
+  explicacion.textContent = sellado
+    ? `Quedará sellado hasta el ${fechaLegible(regalo.fecha)}${enServidor ? " (guardado en el servidor: nadie puede abrirlo antes)" : ""}. Envíale el enlace o el código QR.`
     : "Envíale el enlace o el código QR para que lo abra.";
 
   const panel = document.createElement("div");
@@ -398,27 +451,79 @@ function infoImagenRegalo(regalo) {
 
 let intervaloCuenta = null;
 
-function abrirVistaRegalo(regalo) {
+// sobre: lo que se ve antes de abrir { para, de, fecha, aperturaMs? }
+// obtenerContenido: función async que devuelve el regalo completo (flores, mensaje...)
+// clave: identifica el regalo en "Mi jardín"
+function abrirVistaRegalo(sobre, obtenerContenido, clave) {
   document.getElementById("tarjeta-principal").hidden = true;
   const vista = document.getElementById("vista-regalo");
   vista.hidden = false;
-  document.title = `Un ramo para ${regalo.para} · Tu Ramo Mágico`;
+  document.title = `Un ramo para ${sobre.para} · Tu Ramo Mágico`;
 
-  document.getElementById("sobre-para").textContent = regalo.para;
-  document.getElementById("sobre-de").textContent = regalo.de ? `de ${regalo.de}` : "";
-  document.getElementById("regalo-titulo").textContent = regalo.de
-    ? `${regalo.de} te envió un ramo`
+  document.getElementById("sobre-para").textContent = sobre.para;
+  document.getElementById("sobre-de").textContent = sobre.de ? `de ${sobre.de}` : "";
+  document.getElementById("regalo-titulo").textContent = sobre.de
+    ? `${sobre.de} te envió un ramo`
     : "Alguien te envió un ramo";
 
   const sello = document.getElementById("sello");
-  sello.addEventListener("click", () => abrirSobre(regalo), { once: true });
+  sello.addEventListener("click", () => abrirSobre(obtenerContenido, clave));
 
-  const apertura = fechaDeApertura(regalo.fecha);
+  // Regalos del servidor traen la hora exacta; los de enlace largo, solo la fecha
+  const apertura = sobre.aperturaMs ? new Date(sobre.aperturaMs) : fechaDeApertura(sobre.fecha);
   if (apertura && apertura > new Date()) {
-    sellarHasta(apertura, regalo.fecha);
+    sellarHasta(apertura, sobre.fecha);
   } else {
     habilitarSello();
   }
+}
+
+// Regalo guardado en Firebase: ?r=Xb7kQ2pA
+async function abrirRegaloDelServidor(id) {
+  if (!/^[A-Za-z0-9]{6,20}$/.test(id)) {
+    mostrarMensaje("Este enlace de regalo está incompleto o dañado 😔");
+    return;
+  }
+  await nubeLista;
+  if (!window.nube) {
+    mostrarMensaje("No pudimos conectarnos para traer tu regalo. Revisa tu internet y recarga la página 😔");
+    return;
+  }
+
+  let sobre;
+  try {
+    sobre = await nube.leerSobre(id);
+  } catch (error) {
+    console.error("No se pudo leer el regalo", error);
+    mostrarMensaje("No pudimos traer tu regalo. Revisa tu internet y recarga la página 😔");
+    return;
+  }
+  if (!sobre) {
+    mostrarMensaje("Este regalo no existe o fue borrado 😔");
+    return;
+  }
+
+  abrirVistaRegalo(
+    sobre,
+    async () => {
+      const contenido = await nube.leerContenido(id);
+      if (!contenido) return null;
+      // Igual que con los enlaces largos, no se confía ciegamente en los datos guardados
+      const indices = [...new Set(Array.isArray(contenido.flores) ? contenido.flores : [])]
+        .filter((i) => Number.isInteger(i) && i >= 0 && i < flores.length)
+        .slice(0, MAX_FLORES_REGALO);
+      if (indices.length === 0) return null;
+      return {
+        ...sobre,
+        flores: indices,
+        papel: PAPELES[contenido.papel] ? contenido.papel : 0,
+        lazo: LAZOS[contenido.lazo] ? contenido.lazo : 0,
+        semilla: Number.isInteger(contenido.semilla) ? contenido.semilla >>> 0 : hashTexto(id),
+        mensaje: typeof contenido.mensaje === "string" ? contenido.mensaje.slice(0, MAX_MENSAJE) : "",
+      };
+    },
+    claveDeRegalo(null, id)
+  );
 }
 
 function habilitarSello() {
@@ -472,9 +577,36 @@ function sellarHasta(apertura, fecha) {
   intervaloCuenta = setInterval(actualizar, 1000);
 }
 
-function abrirSobre(regalo) {
-  const sobre = document.getElementById("sobre");
-  sobre.classList.add("abierto");
+let abriendoSobre = false;
+
+async function abrirSobre(obtenerContenido, clave) {
+  if (abriendoSobre) return;
+  abriendoSobre = true;
+
+  const sello = document.getElementById("sello");
+  const instruccion = document.getElementById("sobre-instruccion");
+  sello.disabled = true;
+  instruccion.textContent = "Abriendo tu regalo…";
+
+  let regalo = null;
+  let error = null;
+  try {
+    regalo = await obtenerContenido();
+  } catch (e) {
+    error = e;
+  }
+
+  if (!regalo) {
+    // "permission-denied": el servidor dice que aún no es la fecha (tu reloj va adelantado)
+    instruccion.textContent = error && error.code === "permission-denied"
+      ? "Todavía no es hora de abrirlo 🔒 Inténtalo de nuevo en un momento."
+      : "No pudimos abrir el regalo. Revisa tu internet e inténtalo otra vez 😔";
+    sello.disabled = false;
+    abriendoSobre = false;
+    return;
+  }
+
+  document.getElementById("sobre").classList.add("abierto");
   const espera = reducirMovimiento ? 0 : 1100;
 
   setTimeout(() => {
@@ -482,7 +614,17 @@ function abrirSobre(regalo) {
     dibujarRamo(regalo.flores.map((i) => flores[i]), regalo.semilla, regalo.para, estiloDelRegalo(regalo));
     mostrarContenidoRegalo(regalo);
     window.scrollTo({ top: 0, behavior: "auto" });
+    // Cada regalo que abres se planta en tu jardín
+    plantarRegalo("recibido", regalo, window.location.href, clave);
   }, espera);
+}
+
+// Enlace al taller con los nombres al revés: quien recibió ahora envía
+function enlaceParaResponder(regalo) {
+  const parametros = new URLSearchParams({ crear: "1" });
+  if (regalo.de) parametros.set("para", regalo.de);
+  parametros.set("de", regalo.para);
+  return `?${parametros.toString()}`;
 }
 
 function mostrarContenidoRegalo(regalo) {
@@ -521,21 +663,26 @@ function mostrarContenidoRegalo(regalo) {
 
   const fila = document.createElement("div");
   fila.className = "fila-botones";
+
+  const responder = document.createElement("a");
+  responder.className = "boton-principal boton-enlace";
+  responder.href = enlaceParaResponder(regalo);
+  responder.textContent = regalo.de ? `Responder a ${regalo.de} con un ramo 💌` : "Enviar un ramo de vuelta 💌";
+  fila.append(responder);
+
   fila.append(crearBotonImagen(() => infoImagenRegalo(regalo), regalo.para, aviso));
 
-  const crear = document.createElement("a");
-  crear.className = "boton-secundario boton-enlace";
-  crear.href = "?crear=1";
-  crear.textContent = "Envía tu propio ramo ✉";
-  fila.append(crear);
+  const jardin = document.createElement("a");
+  jardin.className = "boton-secundario boton-enlace";
+  jardin.href = "?jardin=1";
+  jardin.textContent = "Ver mi jardín 🌙";
+  fila.append(jardin);
 
-  const descubrir = document.createElement("a");
-  descubrir.className = "boton-secundario boton-enlace";
-  descubrir.href = "./";
-  descubrir.textContent = "Descubre tu ramo ✿";
-  fila.append(descubrir);
+  const nota = document.createElement("p");
+  nota.className = "nota-jardin";
+  nota.textContent = "🌱 Este ramo quedó plantado en tu jardín";
 
-  acciones.append(fila, aviso);
+  acciones.append(fila, aviso, nota);
   partes.push(acciones);
 
   document.getElementById("resultado").replaceChildren(...partes);

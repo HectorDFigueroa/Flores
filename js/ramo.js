@@ -83,6 +83,46 @@ function obtenerLienzoRamo() {
   return document.querySelector("#canvas-contenedor canvas");
 }
 
+// Dibuja el ramo ya florecido fuera de pantalla y devuelve una miniatura JPG (para "Mi jardín")
+function generarMiniatura(ramo, semilla, estilo, ancho = 240) {
+  return new Promise((resolve) => {
+    const caja = document.createElement("div");
+    caja.style.cssText = `position:fixed;left:-10000px;top:0;width:${ancho}px;`;
+    caja.setAttribute("aria-hidden", "true");
+    document.body.append(caja);
+
+    let instancia = null;
+    let listo = false;
+
+    function alDibujar(lienzo) {
+      if (listo) return;
+      listo = true;
+      const alto = Math.round((ancho * lienzo.height) / lienzo.width);
+      const miniatura = document.createElement("canvas");
+      miniatura.width = ancho;
+      miniatura.height = alto;
+      const ctx = miniatura.getContext("2d");
+      // fondo de cielo, porque el JPG no admite transparencia
+      const cielo = ctx.createLinearGradient(0, 0, 0, alto);
+      cielo.addColorStop(0, "#140d2c");
+      cielo.addColorStop(1, "#2a1a4a");
+      ctx.fillStyle = cielo;
+      ctx.fillRect(0, 0, ancho, alto);
+      ctx.drawImage(lienzo, 0, 0, ancho, alto);
+      resolve(miniatura.toDataURL("image/jpeg", 0.82));
+      setTimeout(() => {
+        if (instancia) instancia.remove();
+        caja.remove();
+      }, 0);
+    }
+
+    instancia = new p5(
+      (p) => sketchRamo(p, caja, ramo, semilla, "", estilo, { ancho, unaVez: true, densidad: 1, alDibujar }),
+      caja
+    );
+  });
+}
+
 
 // ---------- el sketch ----------
 
@@ -118,7 +158,7 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
   const rgba = ([r, g, b], a) => `rgba(${r},${g},${b},${a})`;
 
   function medir() {
-    W = Math.min(contenedor.clientWidth || 360, ANCHO_MAX);
+    W = opciones.ancho || Math.min(contenedor.clientWidth || 360, ANCHO_MAX);
     H = Math.round(W * PROPORCION);
   }
 
@@ -805,10 +845,14 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
   }
 
   // ---------- ciclo de p5 ----------
+  // unaVez: dibuja un solo cuadro ya florecido (para miniaturas)
+  const quieto = reducirMovimiento || opciones.unaVez;
+  let lienzo = null;
+
   p.setup = function () {
     medir();
-    p.pixelDensity(Math.min(window.devicePixelRatio || 1, 2));
-    const lienzo = p.createCanvas(W, H);
+    p.pixelDensity(opciones.densidad || Math.min(window.devicePixelRatio || 1, 2));
+    lienzo = p.createCanvas(W, H);
     lienzo.elt.setAttribute("role", "img");
     lienzo.elt.setAttribute(
       "aria-label",
@@ -818,11 +862,11 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
     p.noiseSeed(semilla);
     generarComposicion();
     inicio = p.millis();
-    if (reducirMovimiento) p.noLoop();   // se dibuja una sola vez, ya florecido
+    if (quieto) p.noLoop();   // se dibuja una sola vez, ya florecido
   };
 
   p.draw = function () {
-    const t = reducirMovimiento ? 100 : (p.millis() - inicio) / 1000 + ADELANTO;
+    const t = quieto ? 100 : (p.millis() - inicio) / 1000 + ADELANTO;
     p.clear();
     if (estilo.efectos) dibujarFondoEspecial(t);
     if (conPapel) dibujarPapel(t, "atras");
@@ -835,6 +879,7 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
     ordenDibujo.forEach((m) => dibujarFlor(m, t));
     dibujarParticulas(t);
     if (estilo.efectos) dibujarPetalosCayendo(t);
+    if (opciones.alDibujar) opciones.alDibujar(lienzo.elt);
   };
 
   p.windowResized = function () {

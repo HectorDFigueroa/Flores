@@ -56,7 +56,7 @@ firestore.rules      # Reglas de seguridad de la base de datos (se pegan en la c
 
 ## 🚀 Ver en vivo
 
-🌐 [Abrir Tu Ramo Mágico](https://hdfigueroap-a11y.github.io/Flores/)
+🌐 [Abrir Tu Ramo Mágico](https://hectordfigueroa.github.io/Flores/)
 
 ---
 

@@ -13,6 +13,7 @@
 ## ✨ Funcionalidades
 
 - 🌺 Generación de ramo personalizado según el nombre ingresado
+- 🎨 Ramo animado y único para cada nombre, dibujado con p5.js
 - ⚡ Interfaz simple e intuitiva
 - 📱 Diseño responsive para móvil y escritorio
 
@@ -24,7 +25,7 @@
 tu-ramo-magico/
 ├── index.html       # Estructura principal
 ├── styles.css       # Estilos y diseño visual
-└── script.js        # Lógica de generación del ramo
+└── script.js        # Lógica del ramo y dibujo con p5.js
 ```
 
 ---
@@ -48,7 +49,6 @@ tu-ramo-magico/
 | Medio | Información |
 |---|---|
 | 📧 Email | hdfigueroap@gmail.com |
-| 📱 Teléfono | +57 312 229 3391 |
 
 ---
 

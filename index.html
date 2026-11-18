@@ -4,26 +4,55 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tu Ramo Mágico</title>
+  <meta name="description" content="Escribe tu nombre y descubre el ramo de flores mágico que florece con él." />
+  <meta name="theme-color" content="#120c26" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Tu Ramo Mágico 🌸" />
+  <meta property="og:description" content="Descubre las flores que florecen con tu nombre." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" />
   <link rel="stylesheet" href="styles.css" />
-  <!-- p5.js -->
+  <!-- p5.js: dibuja el ramo animado -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
 </head>
 <body>
 
-  <div class="contenedor">
-
-    <h1>Tu Ramo Mágico 🌸</h1>
-    <p class="subtitulo">Descubre las flores que florecen con tu nombre</p>
-
-    <input type="text" id="nombreInput" placeholder="Escribe tu nombre..." />
-    <button id="boton">Revelar mi ramo</button>
-
-    <!-- Aquí se dibuja el ramo -->
-    <div id="canvas-contenedor"></div>
-
-    <div id="resultado"></div>
-
+  <!-- Decoración del fondo -->
+  <div class="cielo" aria-hidden="true">
+    <div class="estrellas" id="estrellas"></div>
+    <div class="luna"></div>
+    <div class="petalos" id="petalos"></div>
   </div>
+  <svg class="jardin" id="jardin" viewBox="0 0 1440 140" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <path class="jardin-colina" d="M0 140 V104 C 200 84, 380 118, 600 100 S 960 80, 1160 102 S 1360 92, 1440 98 V140 Z" />
+  </svg>
+
+  <main class="contenedor">
+
+    <section class="tarjeta">
+      <p class="antetitulo">✦ un jardín que florece con tu nombre ✦</p>
+      <h1>Tu Ramo Mágico</h1>
+      <p class="subtitulo">Escribe tu nombre y deja que las flores te encuentren</p>
+
+      <form class="formulario" id="formulario" novalidate>
+        <label for="nombreInput" class="solo-lectores">Tu nombre</label>
+        <input type="text" id="nombreInput" placeholder="Escribe tu nombre..." maxlength="40" autocomplete="given-name" />
+        <button id="boton" type="submit">Revelar mi ramo <span aria-hidden="true">✿</span></button>
+      </form>
+      <p id="mensaje" class="mensaje" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="escenario">
+      <!-- Aquí se dibuja el ramo -->
+      <div id="canvas-contenedor" hidden></div>
+      <div id="resultado"></div>
+    </section>
+
+  </main>
+
+  <footer class="pie">Hecho con ❤️ y flores</footer>
 
   <script src="script.js"></script>
 </body>

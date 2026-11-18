@@ -57,9 +57,11 @@ const COLOR_HOJA = "#5d8c55";
 const DURACION_TALLO = 1.4;   // segundos que tarda en crecer un tallo
 
 let sketchActual = null;
+let ultimoDibujo = null;   // para poder repetir la animación (al grabar video)
 
 // opciones.instantaneo: dibuja el ramo ya florecido (para la vista previa del taller)
 function dibujarRamo(ramo, semilla, nombre, estilo = ESTILO_NORMAL, opciones = {}) {
+  ultimoDibujo = { ramo, semilla, nombre, estilo, opciones };
   const contenedor = document.getElementById("canvas-contenedor");
   borrarRamoDibujado();
   contenedor.hidden = false;
@@ -71,6 +73,14 @@ function dibujarRamo(ramo, semilla, nombre, estilo = ESTILO_NORMAL, opciones = {
   if (!opciones.instantaneo && typeof sonido !== "undefined") {
     sonido.ramo(tiemposDeFloracion(ramo, estilo));
   }
+}
+
+// Vuelve a dibujar el último ramo desde cero, con su animación de crecimiento
+function reiniciarRamo() {
+  if (!ultimoDibujo) return false;
+  const { ramo, semilla, nombre, estilo, opciones } = ultimoDibujo;
+  dibujarRamo(ramo, semilla, nombre, estilo, { ...opciones, instantaneo: false });
+  return true;
 }
 
 // Segundos en que empieza a abrirse cada flor principal (igual que en el sketch)

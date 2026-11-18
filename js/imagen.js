@@ -169,8 +169,12 @@ async function generarImagenRamo(info) {
 // Descarga la imagen; en el celular abre el menú de compartir para mandarla directo.
 // Devuelve "compartida", "descargada" o "cancelada".
 async function guardarImagen(info, nombreArchivo) {
-  const blob = await generarImagenRamo(info);
-  const archivo = new File([blob], nombreArchivo, { type: "image/png" });
+  return entregarArchivo(await generarImagenRamo(info), nombreArchivo);
+}
+
+// Entrega un archivo: en el celular abre el menú de compartir, en el computador lo descarga
+async function entregarArchivo(blob, nombreArchivo) {
+  const archivo = new File([blob], nombreArchivo, { type: blob.type });
 
   const esTactil = window.matchMedia("(pointer: coarse)").matches;
   if (esTactil && navigator.canShare && navigator.canShare({ files: [archivo] })) {
@@ -193,9 +197,9 @@ async function guardarImagen(info, nombreArchivo) {
   return "descargada";
 }
 
-function nombreDeArchivo(nombre) {
+function nombreDeArchivo(nombre, extension = "png") {
   const limpio = normalizarNombre(nombre).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  return `ramo-${limpio || "magico"}.png`;
+  return `ramo-${limpio || "magico"}.${extension}`;
 }
 
 // Dibuja un código QR en un <canvas>. Devuelve false si la librería no cargó.

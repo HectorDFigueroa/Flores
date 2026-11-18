@@ -15,6 +15,8 @@ const sonido = (() => {
   let activo = leerPreferencia();
   let ctx = null;
   let salida = null;
+  let filtroEco = null;
+  let destinoGrabacion = null;   // para meter las campanitas en los videos
 
   function leerPreferencia() {
     try {
@@ -24,8 +26,11 @@ const sonido = (() => {
     }
   }
 
+  // ¿La persona ya tocó algo en la página? Sin eso, el navegador no deja sonar.
+  const huboInteraccion = () => !navigator.userActivation || navigator.userActivation.hasBeenActive;
+
   function preparar() {
-    if (!activo) return null;
+    if (!activo || !huboInteraccion()) return null;
     const Contexto = window.AudioContext || window.webkitAudioContext;
     if (!Contexto) return null;
 
@@ -42,6 +47,7 @@ const sonido = (() => {
       const filtro = ctx.createBiquadFilter();
       filtro.type = "lowpass";
       filtro.frequency.value = 2400;
+      filtroEco = filtro;
 
       salida.connect(ctx.destination);
       salida.connect(eco);
@@ -102,6 +108,18 @@ const sonido = (() => {
     // Arpegio brillante al romper el sello del sobre
     sello() {
       [1046.5, 1318.5, 1568.0, 2093.0].forEach((f, i) => campana(f, i * 0.07, 0.3, 1.3));
+    },
+
+    // Pista de audio con todo lo que suena (o null si el sonido está apagado)
+    pistaParaGrabar() {
+      const c = preparar();
+      if (!c || !c.createMediaStreamDestination) return null;
+      if (!destinoGrabacion) {
+        destinoGrabacion = c.createMediaStreamDestination();
+        salida.connect(destinoGrabacion);
+        filtroEco.connect(destinoGrabacion);
+      }
+      return destinoGrabacion.stream.getAudioTracks()[0] || null;
     },
 
     // "Tin" al plantar en el jardín

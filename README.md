@@ -17,6 +17,7 @@
 - 🔒 Regalos sellados con cuenta regresiva hasta la fecha elegida
 - 🔗 Enlaces directos (`?nombre=Ana`) y códigos QR para compartir
 - 📷 Guarda cualquier ramo como imagen lista para redes sociales
+- 🎬 Guarda el ramo creciendo como video (con las campanitas) para historias
 - 💌 Responde a un regalo con otro ramo en un clic
 - 🌙 **Mi jardín:** colección de ramos descubiertos, enviados y recibidos, más la flor del día
 - 🔐 **Inicio de sesión con Google** (Firebase): jardín en la nube, enlaces cortos y sellos de fecha que nadie puede saltarse
@@ -39,6 +40,7 @@ tu-ramo-magico/
     ├── datos.js     # Flores, ramo de Eva, papeles y lazos
     ├── ramo.js      # Lógica del ramo y dibujo con p5.js
     ├── imagen.js    # Imagen para descargar y código QR
+    ├── video.js     # Video del ramo creciendo, con las campanitas
     ├── regalo.js    # Taller de regalos y sobre sellado
     ├── jardin.js    # Mi jardín: ramos guardados y flor del día
     ├── sonido.js    # Campanitas con la Web Audio API (sin archivos de audio)

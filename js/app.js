@@ -56,6 +56,38 @@ function crearBotonImagen(obtenerInfo, nombre, aviso) {
 }
 
 
+// Botón "Guardar video". Devuelve null si el navegador no puede grabar.
+function crearBotonVideo(obtenerInfo, nombre, aviso) {
+  if (!puedeGrabarVideo()) return null;
+  const textoNormal = "Guardar video 🎬";
+  const boton = crearBoton(textoNormal, async () => {
+    boton.disabled = true;
+    aviso.textContent = "Grabando el ramo… no cambies de pestaña 🎬";
+    try {
+      const { blob, extension } = await grabarVideoRamo(obtenerInfo(), (falta) => {
+        boton.textContent = `Grabando… ${falta}`;
+      });
+      boton.textContent = textoNormal;
+      const resultado = await entregarArchivo(blob, nombreDeArchivo(nombre, extension));
+      if (resultado === "descargada") {
+        aviso.textContent = extension === "mp4"
+          ? "¡Video guardado! 🌸"
+          : "¡Video guardado! 🌸 (formato WebM: si una app no lo acepta, prueba desde el celular)";
+      } else {
+        aviso.textContent = "";
+      }
+    } catch (error) {
+      console.error("No se pudo grabar el video", error);
+      aviso.textContent = "No se pudo grabar el video en este navegador 😔";
+    } finally {
+      boton.textContent = textoNormal;
+      boton.disabled = false;
+    }
+  });
+  return boton;
+}
+
+
 // ---------- Descubre tu ramo ----------
 
 const formulario = document.getElementById("formulario");
@@ -132,11 +164,9 @@ function crearAccionesRamo(nombre, ramo, especial, semilla) {
     }
   });
 
-  const imagen = crearBotonImagen(
-    () => ({ titulo: `El Ramo de ${nombre}`, flores: ramo.map((f) => f.nombre) }),
-    nombre,
-    aviso
-  );
+  const infoRamo = () => ({ titulo: `El Ramo de ${nombre}`, flores: ramo.map((f) => f.nombre) });
+  const imagen = crearBotonImagen(infoRamo, nombre, aviso);
+  const video = crearBotonVideo(infoRamo, nombre, aviso);
 
   const plantar = crearBoton("🌱 Plantar en mi jardín", async () => {
     plantar.disabled = true;
@@ -158,7 +188,9 @@ function crearAccionesRamo(nombre, ramo, especial, semilla) {
 
   const fila = document.createElement("div");
   fila.className = "fila-botones";
-  fila.append(compartir, imagen, plantar);
+  fila.append(compartir, imagen);
+  if (video) fila.append(video);
+  fila.append(plantar);
   zona.append(fila, aviso);
   return zona;
 }

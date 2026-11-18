@@ -425,6 +425,8 @@ function mostrarRegaloListo(regalo, url, enServidor) {
   botones.append(ver);
 
   botones.append(crearBotonImagen(() => infoImagenRegalo(regalo), regalo.para, aviso));
+  const videoListo = crearBotonVideo(() => infoImagenRegalo(regalo), regalo.para, aviso);
+  if (videoListo) botones.append(videoListo);
 
   lado.append(campoEnlace, botones, aviso);
   panel.append(lado);
@@ -673,6 +675,8 @@ function mostrarContenidoRegalo(regalo) {
   fila.append(responder);
 
   fila.append(crearBotonImagen(() => infoImagenRegalo(regalo), regalo.para, aviso));
+  const videoRecibido = crearBotonVideo(() => infoImagenRegalo(regalo), regalo.para, aviso);
+  if (videoRecibido) fila.append(videoRecibido);
 
   const jardin = document.createElement("a");
   jardin.className = "boton-secundario boton-enlace";

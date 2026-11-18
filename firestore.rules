@@ -26,6 +26,20 @@ service cloud.firestore {
             || (request.resource.data.miniatura is string && request.resource.data.miniatura.size() < 150000));
     }
 
+    // ---------- Fechas especiales de cada persona ----------
+    // Cumpleaños y aniversarios: solo el dueño de la cuenta los ve y los cambia.
+    match /usuarios/{uid}/fechas/{fecha} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['id', 'nombre', 'tipo', 'mes', 'dia', 'creado'])
+        && request.resource.data.nombre is string
+        && request.resource.data.nombre.size() > 0 && request.resource.data.nombre.size() <= 200
+        && request.resource.data.tipo in ['cumpleanos', 'aniversario', 'otro']
+        && request.resource.data.mes is int && request.resource.data.mes >= 1 && request.resource.data.mes <= 12
+        && request.resource.data.dia is int && request.resource.data.dia >= 1 && request.resource.data.dia <= 31;
+    }
+
     // ---------- Regalos ----------
     // El sobre (para, de, fecha): lo puede ver cualquiera que tenga el enlace.
     // Nadie puede listar todos los regalos ni modificarlos después de creados.

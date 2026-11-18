@@ -610,6 +610,124 @@ h2 {
   font-size: 1rem;
 }
 
+/* ---------- Fechas especiales ---------- */
+.cinta-fecha {
+  display: table;
+  margin: 0 auto 14px;
+  border-color: rgba(226, 194, 122, 0.5);
+  background: rgba(226, 194, 122, 0.12);
+  color: var(--dorado);
+}
+
+.cinta-fecha:hover {
+  background: rgba(226, 194, 122, 0.22);
+  border-color: var(--dorado);
+}
+
+.fechas {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(226, 194, 122, 0.15);
+  text-align: left;
+}
+
+.fechas-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.fechas-cabecera h3 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.05rem;
+  color: var(--dorado);
+}
+
+.fechas-cabecera .enlace-boton {
+  margin: 0;
+}
+
+.form-fecha {
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid var(--borde-vidrio);
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.form-fecha[hidden] {
+  display: none;
+}
+
+.campo select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--borde-vidrio);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--crema);
+  font-family: inherit;
+  font-size: 1.12rem;
+  color-scheme: dark;
+}
+
+.fechas-lista {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fechas-vacio {
+  font-style: italic;
+  color: var(--texto-suave);
+}
+
+.fecha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: var(--vidrio);
+}
+
+.fecha--cerca {
+  border-color: rgba(226, 194, 122, 0.45);
+  background: linear-gradient(90deg, rgba(226, 194, 122, 0.12), var(--vidrio));
+}
+
+.fecha-emoji {
+  font-size: 1.6rem;
+}
+
+.fecha-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.fecha-nombre {
+  font-weight: 600;
+  font-size: 1.15rem;
+  overflow-wrap: anywhere;
+}
+
+.fecha-detalle {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--texto-suave);
+}
+
+.fecha-ramo {
+  padding: 7px 14px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
 /* ---------- Avisos ---------- */
 .avisos {
   position: fixed;

@@ -28,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=19" />
+  <link rel="stylesheet" href="styles.css?v=20" />
   <!-- p5.js: dibuja el ramo animado · qrcode-generator: códigos QR de los regalos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -58,6 +58,8 @@
       <h1>Tu Ramo Mágico</h1>
       <!-- Solo en temporada (Navidad, San Valentín...): js/temporadas.js -->
       <a class="cinta-temporada" id="cinta-temporada" href="?crear=1" hidden></a>
+      <!-- Recordatorio: "🎂 En 3 días es el cumpleaños de Ana" (js/fechas.js) -->
+      <a class="cinta-temporada cinta-fecha" id="cinta-fecha" href="?crear=1" hidden></a>
 
       <div class="pestanas" role="tablist" aria-label="¿Qué quieres hacer?">
         <button type="button" role="tab" id="tab-descubrir" data-panel="descubrir" aria-controls="panel-descubrir" aria-selected="true">Descubre tu ramo</button>
@@ -171,6 +173,39 @@
 
         <div class="jardin-lista" id="jardin-lista"></div>
 
+        <!-- Fechas especiales (js/fechas.js) -->
+        <section class="fechas" aria-labelledby="fechas-titulo">
+          <div class="fechas-cabecera">
+            <h3 id="fechas-titulo">🎂 Fechas especiales</h3>
+            <button type="button" class="enlace-boton" id="boton-agregar-fecha" aria-controls="form-fecha" aria-expanded="false">+ Agregar fecha</button>
+          </div>
+
+          <form class="form-fecha" id="form-fecha" hidden novalidate>
+            <label class="campo">
+              <span class="campo-titulo">Nombre</span>
+              <input type="text" id="fecha-nombre" maxlength="40" placeholder="Ana, Mamá, Leo..." autocomplete="off" />
+            </label>
+            <div class="campos-dobles">
+              <label class="campo">
+                <span class="campo-titulo">Qué se celebra</span>
+                <select id="fecha-tipo">
+                  <option value="cumpleanos">🎂 Cumpleaños</option>
+                  <option value="aniversario">💞 Aniversario</option>
+                  <option value="otro">✨ Otra fecha especial</option>
+                </select>
+              </label>
+              <label class="campo">
+                <span class="campo-titulo">Día <em>(el año no importa)</em></span>
+                <input type="date" id="fecha-dia" />
+              </label>
+            </div>
+            <p class="mensaje" id="fecha-error" role="status" aria-live="polite"></p>
+            <button type="submit">Guardar fecha ✿</button>
+          </form>
+
+          <ul class="fechas-lista" id="fechas-lista"></ul>
+        </section>
+
         <p class="nota-jardin" id="nota-jardin"></p>
       </div>
     </section>
@@ -273,19 +308,20 @@
   <!-- Avisos: "💌 Eva abrió tu regalo" (js/avisos.js) -->
   <div class="avisos" id="avisos" role="status" aria-live="polite"></div>
 
-  <script src="js/datos.js?v=19"></script>
-  <script src="js/temporadas.js?v=19"></script>
-  <script src="js/sonido.js?v=19"></script>
-  <script src="js/ramo.js?v=19"></script>
-  <script src="js/imagen.js?v=19"></script>
-  <script src="js/video.js?v=19"></script>
-  <script src="js/regalo.js?v=19"></script>
-  <script src="js/pareja.js?v=19"></script>
-  <script src="js/jardin.js?v=19"></script>
-  <script src="js/pradera.js?v=19"></script>
-  <script src="js/avisos.js?v=19"></script>
-  <script src="js/app.js?v=19"></script>
+  <script src="js/datos.js?v=20"></script>
+  <script src="js/temporadas.js?v=20"></script>
+  <script src="js/sonido.js?v=20"></script>
+  <script src="js/ramo.js?v=20"></script>
+  <script src="js/imagen.js?v=20"></script>
+  <script src="js/video.js?v=20"></script>
+  <script src="js/regalo.js?v=20"></script>
+  <script src="js/pareja.js?v=20"></script>
+  <script src="js/jardin.js?v=20"></script>
+  <script src="js/pradera.js?v=20"></script>
+  <script src="js/avisos.js?v=20"></script>
+  <script src="js/fechas.js?v=20"></script>
+  <script src="js/app.js?v=20"></script>
   <!-- Firebase: sesión con Google, jardín en la nube y regalos guardados -->
-  <script type="module" src="js/nube.js?v=19"></script>
+  <script type="module" src="js/nube.js?v=20"></script>
 </body>
 </html>

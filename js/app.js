@@ -333,6 +333,7 @@ function cambiarPestana(nombre, { enfocar = false } = {}) {
   } else if (nombre === "jardin") {
     limpiarNovedadesDelJardin();
     mostrarJardin();
+    mostrarFechas();
     history.replaceState(null, "", `${base}?jardin=1`);
   } else {
     history.replaceState(null, "", base);
@@ -501,10 +502,19 @@ window.addEventListener("sesion-cambio", async (evento) => {
     } catch (error) {
       console.error("No se pudo mover el jardín a la nube", error);
     }
+    try {
+      await moverFechasLocalesALaNube();
+    } catch (error) {
+      console.error("No se pudieron mover las fechas a la nube", error);
+    }
   }
 
-  // Si el jardín está a la vista, se recarga con los ramos de la cuenta
-  if (!document.getElementById("panel-jardin").hidden) mostrarJardin();
+  // Si el jardín está a la vista, se recarga con los ramos y fechas de la cuenta
+  if (!document.getElementById("panel-jardin").hidden) {
+    mostrarJardin();
+    mostrarFechas();
+  }
+  actualizarRecordatorio();
 
   // "💌 Eva abrió tu regalo" (solo con sesión)
   iniciarAvisos(Boolean(usuario));
@@ -570,6 +580,8 @@ function iniciar() {
   actualizarNotaTaller();
   mostrarSesion(null);
   mostrarCintaTemporada();
+  prepararFechas();
+  actualizarRecordatorio();
   prepararBotonSonido();
   prepararInstalacion();
   document.getElementById("abrir-privacidad").addEventListener("click", () => {
@@ -602,6 +614,9 @@ function iniciar() {
     const de = (parametros.get("de") || "").trim().slice(0, 40);
     if (para) campos.para.value = para;
     if (de) campos.de.value = de;
+    // Desde una fecha especial: el regalo queda sellado hasta ese día
+    const abrir = parametros.get("abrir") || "";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(abrir) && abrir >= hoyComoTexto()) campos.fecha.value = abrir;
     if (para) actualizarVistaPrevia();
     return;
   }

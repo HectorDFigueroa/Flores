@@ -34,7 +34,7 @@ function cargarPagina() {
     document: { getElementById: () => elementoFalso, querySelector: () => null },
     navigator: {},
   });
-  for (const archivo of ["datos.js", "temporadas.js", "ramo.js", "regalo.js", "pareja.js"]) {
+  for (const archivo of ["datos.js", "temporadas.js", "ramo.js", "regalo.js", "pareja.js", "fechas.js"]) {
     const codigo = fs.readFileSync(path.join(__dirname, "..", "js", archivo), "utf8");
     vm.runInContext(codigo, contexto, { filename: archivo });
   }
@@ -152,4 +152,43 @@ test("los datos son coherentes: formas, papeles, lazos e índices", () => {
     assert.ok(temporada.ramo.flores.every((i) => flores[i]), `temporada ${temporada.id}: flor inexistente`);
     assert.ok(PAPELES[temporada.ramo.papel] && LAZOS[temporada.ramo.lazo], `temporada ${temporada.id}: papel o lazo inexistente`);
   }
+});
+
+test("fechas especiales: la próxima vez que cae cada fecha", () => {
+  // Devuelve "AAAA-MM-DD · días que faltan", calculado dentro de la página
+  const proxima = (mes, dia, hoy) => pagina(`(() => {
+    const hoy = new Date(${hoy});
+    const fecha = proximaOcurrencia(${mes}, ${dia}, hoy);
+    return fechaComoTexto(fecha) + " · " + diasHasta(fecha, hoy);
+  })()`);
+  const hoy = "2026, 10, 17";   // 17 de noviembre de 2026 (los meses de Date empiezan en 0)
+  assert.equal(proxima(11, 20, hoy), "2026-11-20 · 3");     // dentro de 3 días
+  assert.equal(proxima(11, 17, hoy), "2026-11-17 · 0");     // hoy
+  assert.equal(proxima(11, 10, hoy), "2027-11-10 · 358");   // ya pasó: el próximo año
+  assert.equal(proxima(1, 3, "2026, 11, 30"), "2027-01-03 · 4");   // cruza el año nuevo
+  // 29 de febrero: en años no bisiestos se celebra el 28
+  assert.equal(proxima(2, 29, "2026, 0, 1"), "2026-02-28 · 58");
+  assert.equal(proxima(2, 29, "2028, 0, 1"), "2028-02-29 · 59");
+});
+
+test("fechas especiales: orden y enlace al taller con el ramo listo", () => {
+  const resultado = pagina(`(() => {
+    const hoy = new Date(2026, 10, 17);
+    const lista = fechasOrdenadas([
+      { id: "a", nombre: "Leo", tipo: "aniversario", mes: 1, dia: 5 },
+      { id: "b", nombre: "Ana", tipo: "cumpleanos", mes: 11, dia: 20 },
+      { id: "c", nombre: "Mamá", tipo: "cumpleanos", mes: 11, dia: 17 },
+    ], hoy);
+    return JSON.stringify({
+      orden: lista.map((f) => f.nombre),
+      enlaceAna: enlaceRamoParaFecha(lista[1]),
+      enlaceHoy: enlaceRamoParaFecha(lista[0]),
+    });
+  })()`);
+  const { orden, enlaceAna, enlaceHoy } = JSON.parse(resultado);
+  assert.deepEqual(orden, ["Mamá", "Ana", "Leo"]);
+  // El regalo para Ana queda sellado hasta su cumpleaños
+  assert.equal(enlaceAna, "?crear=1&para=Ana&abrir=2026-11-20");
+  // Si es hoy, se abre de una vez (sin fecha)
+  assert.equal(enlaceHoy, "?crear=1&para=Mam%C3%A1");
 });

@@ -106,6 +106,20 @@ const nube = {
     return deleteDoc(doc(db, "usuarios", usuario.uid, "jardin", idSeguro(id)));
   },
 
+  // ---------- fechas especiales: usuarios/{uid}/fechas/{id} ----------
+  async listarFechas() {
+    const resultado = await getDocs(collection(db, "usuarios", usuario.uid, "fechas"));
+    return resultado.docs.map((d) => d.data());
+  },
+
+  guardarFecha(fecha) {
+    return setDoc(doc(db, "usuarios", usuario.uid, "fechas", idSeguro(fecha.id)), fecha);
+  },
+
+  borrarFecha(id) {
+    return deleteDoc(doc(db, "usuarios", usuario.uid, "fechas", idSeguro(id)));
+  },
+
   // ---------- regalos ----------
   // regalos/{id}                     -> el sobre: para, de y fecha (lo ve cualquiera con el enlace)
   // regalos/{id}/privado/contenido   -> flores y mensaje (solo desde la fecha de apertura)

@@ -483,6 +483,42 @@ window.addEventListener("sesion-cambio", async (evento) => {
 });
 
 
+// ---------- App instalable ----------
+
+function prepararInstalacion() {
+  // El service worker guarda la app para que abra sin internet (ver sw.js)
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("sw.js").catch((error) => console.warn("Sin service worker", error));
+  }
+
+  // Chrome/Edge/Android avisan cuando la app se puede instalar: ahí aparece el botón
+  let invitacion = null;
+  const boton = document.createElement("button");
+  boton.type = "button";
+  boton.className = "boton-sesion boton-instalar";
+  boton.textContent = "📲 Instalar";
+  boton.hidden = true;
+  boton.addEventListener("click", async () => {
+    if (!invitacion) return;
+    invitacion.prompt();
+    await invitacion.userChoice;
+    invitacion = null;
+    boton.hidden = true;
+  });
+  document.getElementById("barra-superior").prepend(boton);
+
+  window.addEventListener("beforeinstallprompt", (evento) => {
+    evento.preventDefault();
+    invitacion = evento;
+    boton.hidden = false;
+  });
+  window.addEventListener("appinstalled", () => {
+    boton.hidden = true;
+    avisoSesion("¡Listo! Tu Ramo Mágico ya está en tu pantalla de inicio 🌸");
+  });
+}
+
+
 // ---------- Arranque: ¿qué muestra el enlace? ----------
 //  ?r=Xb7kQ2pA                 -> regalo guardado en Firebase
 //  ?regalo=...                 -> regalo completo dentro del enlace
@@ -496,6 +532,7 @@ function iniciar() {
   actualizarNotaTaller();
   mostrarSesion(null);
   prepararBotonSonido();
+  prepararInstalacion();
   document.getElementById("abrir-privacidad").addEventListener("click", () => {
     document.getElementById("dialogo-privacidad").showModal();
   });

@@ -17,11 +17,18 @@
   <meta property="og:image:alt" content="Un ramo de flores dibujado sobre un cielo nocturno, junto al título Tu Ramo Mágico" />
   <meta property="og:locale" content="es_CO" />
   <meta name="twitter:card" content="summary_large_image" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
+  <link rel="icon" type="image/png" href="img/icono-192.png" />
+  <!-- App instalable: nombre, colores e íconos (manifest.json) -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="img/icono-180.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Ramo Mágico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=11" />
+  <link rel="stylesheet" href="styles.css?v=12" />
   <!-- p5.js: dibuja el ramo animado · qrcode-generator: códigos QR de los regalos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -42,7 +49,9 @@
 
     <section class="tarjeta" id="tarjeta-principal">
       <!-- Iniciar sesión / perfil (lo llena app.js cuando Firebase está listo) -->
-      <div class="sesion" id="sesion"></div>
+      <div class="barra-superior" id="barra-superior">
+        <div class="sesion" id="sesion"></div>
+      </div>
       <p class="aviso-sesion" id="aviso-sesion" role="status" aria-live="polite"></p>
 
       <p class="antetitulo">✦ un jardín que florece con tu nombre ✦</p>
@@ -231,17 +240,17 @@
   <!-- Activar / silenciar las campanitas -->
   <button type="button" class="boton-sonido" id="boton-sonido">🔔</button>
 
-  <script src="js/datos.js?v=11"></script>
-  <script src="js/sonido.js?v=11"></script>
-  <script src="js/ramo.js?v=11"></script>
-  <script src="js/imagen.js?v=11"></script>
-  <script src="js/video.js?v=11"></script>
-  <script src="js/regalo.js?v=11"></script>
-  <script src="js/pareja.js?v=11"></script>
-  <script src="js/jardin.js?v=11"></script>
-  <script src="js/pradera.js?v=11"></script>
-  <script src="js/app.js?v=11"></script>
+  <script src="js/datos.js?v=12"></script>
+  <script src="js/sonido.js?v=12"></script>
+  <script src="js/ramo.js?v=12"></script>
+  <script src="js/imagen.js?v=12"></script>
+  <script src="js/video.js?v=12"></script>
+  <script src="js/regalo.js?v=12"></script>
+  <script src="js/pareja.js?v=12"></script>
+  <script src="js/jardin.js?v=12"></script>
+  <script src="js/pradera.js?v=12"></script>
+  <script src="js/app.js?v=12"></script>
   <!-- Firebase: sesión con Google, jardín en la nube y regalos guardados -->
-  <script type="module" src="js/nube.js?v=11"></script>
+  <script type="module" src="js/nube.js?v=12"></script>
 </body>
 </html>

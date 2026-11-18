@@ -434,13 +434,24 @@ h2 {
 }
 
 /* ---------- Sesión ---------- */
-.sesion {
+.barra-superior {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   min-height: 36px;
   margin: -16px -12px 4px 0;
+}
+
+.boton-instalar[hidden] {
+  display: none;
+}
+
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .boton-sesion {

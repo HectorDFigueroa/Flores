@@ -49,6 +49,9 @@ tu-ramo-magico/
     ├── sonido.js    # Campanitas con la Web Audio API (sin archivos de audio)
     ├── app.js       # Pestañas, sesión, "Descubre tu ramo" y arranque
     └── nube.js      # Firebase: inicio de sesión con Google, jardín y regalos en la nube
+manifest.json        # App instalable: nombre, colores e íconos
+sw.js                # Service worker: abre sin internet y siempre trae la versión nueva
+img/                 # Íconos de la app y vista previa para compartir
 firestore.rules      # Reglas de seguridad de la base de datos (se pegan en la consola de Firebase)
 ```
 

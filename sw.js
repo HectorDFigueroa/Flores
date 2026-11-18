@@ -10,7 +10,7 @@
 // - Firebase (base de datos e inicio de sesión): nunca se guarda, siempre en vivo.
 //
 // Al cambiar esta versión, se borran las copias viejas.
-const VERSION = "v18";
+const VERSION = "v19";
 const CACHE = `tu-ramo-magico-${VERSION}`;
 const ESENCIALES = ["./", "index.html", "styles.css", "manifest.json", "img/icono-192.png"];
 

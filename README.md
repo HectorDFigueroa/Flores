@@ -47,6 +47,7 @@ tu-ramo-magico/
     ├── pareja.js    # Ramo de dos nombres: flores combinadas y afinidad floral
     ├── jardin.js    # Mi jardín: ramos guardados y flor del día
     ├── pradera.js   # El jardín dibujado: cada ramo es una planta que se mece
+    ├── avisos.js    # Avisos de "💌 Eva abrió tu regalo" (con la sesión iniciada)
     ├── sonido.js    # Campanitas con la Web Audio API (sin archivos de audio)
     ├── app.js       # Pestañas, sesión, "Descubre tu ramo" y arranque
     └── nube.js      # Firebase: inicio de sesión con Google, jardín y regalos en la nube

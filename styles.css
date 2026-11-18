@@ -610,6 +610,103 @@ h2 {
   font-size: 1rem;
 }
 
+/* ---------- Avisos ---------- */
+.avisos {
+  position: fixed;
+  left: 50%;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(420px, calc(100% - 32px));
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 18px;
+  border: 1px solid rgba(240, 166, 192, 0.5);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(64, 32, 80, 0.95), rgba(28, 18, 52, 0.95));
+  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.7), 0 0 30px rgba(240, 166, 192, 0.15);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  pointer-events: auto;
+  animation: entrarAviso 0.4s ease both;
+  transition: opacity 0.3s, translate 0.3s;
+}
+
+.aviso.saliendo {
+  opacity: 0;
+  translate: 0 12px;
+}
+
+@keyframes entrarAviso {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.aviso p {
+  flex: 1;
+  text-align: left;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.aviso-hora {
+  display: block;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.aviso-ver {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f6dd98, var(--dorado-fuerte));
+  color: #24163b;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.aviso-cerrar {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  color: var(--texto-suave);
+  box-shadow: none;
+  font-size: 1rem;
+}
+
+.aviso-cerrar:hover {
+  transform: none;
+  color: var(--crema);
+  box-shadow: none;
+}
+
+/* Puntito con el número de novedades en la pestaña "Mi jardín" */
+.pestanas [role="tab"][data-novedades]::after {
+  content: attr(data-novedades);
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--rosa);
+  color: #24163b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
 /* ---------- Botón de sonido ---------- */
 .boton-sonido {
   position: fixed;

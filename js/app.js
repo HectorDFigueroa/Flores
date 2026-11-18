@@ -331,6 +331,7 @@ function cambiarPestana(nombre, { enfocar = false } = {}) {
     actualizarVistaPrevia();
     history.replaceState(null, "", `${base}?crear=1`);
   } else if (nombre === "jardin") {
+    limpiarNovedadesDelJardin();
     mostrarJardin();
     history.replaceState(null, "", `${base}?jardin=1`);
   } else {
@@ -504,6 +505,9 @@ window.addEventListener("sesion-cambio", async (evento) => {
 
   // Si el jardín está a la vista, se recarga con los ramos de la cuenta
   if (!document.getElementById("panel-jardin").hidden) mostrarJardin();
+
+  // "💌 Eva abrió tu regalo" (solo con sesión)
+  iniciarAvisos(Boolean(usuario));
 });
 
 

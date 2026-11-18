@@ -22,7 +22,12 @@ function borrarPradera() {
 
 // Las flores de cada planta del jardín
 function floresDePlanta(item) {
-  if (item.especial) return ramoEva;
+  // especial: true = el ramo de Eva · "mama", "papa"... = un ramo secreto de familia
+  if (item.especial === true) return ramoEva;
+  if (typeof item.especial === "string") {
+    const secreto = RAMOS_SECRETOS.find((s) => s.id === item.especial);
+    if (secreto) return secreto.flores;
+  }
   const lista = (item.flores || []).map((i) => flores[i]).filter(Boolean);
   return lista.length ? lista : [flores[hashTexto(item.id) % flores.length]];
 }

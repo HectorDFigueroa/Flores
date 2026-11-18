@@ -66,6 +66,82 @@ const ACOMPANANTES_EVA = [
   { nombre: "Violeta",     angulo: 0.86,  largo: 0.32 },
 ];
 
+// Ramos secretos de familia: aparecen al escribir uno de estos nombres.
+// Como el de Eva, sus flores no existen en ningún otro ramo.
+// claves: primeras palabras que lo activan (sin tildes y en minúscula)
+const RAMOS_SECRETOS = [
+  {
+    id: "mama",
+    claves: ["mama", "mami", "mamita", "madre", "mom"],
+    adorno: "💐",
+    dedicatoria: "Para quien sembró todas las flores de mi vida",
+    papel: 3,   // Crema
+    lazo: 0,    // Dorado
+    flores: [
+      { nombre: "Gardenia del Hogar", emoji: "🏡", color: "#f7f1e6", centro: "#e6d6b8", aura: "#ffe6b0", forma: "rosa",     significado: "El primer hogar que conocí fue tu abrazo" },
+      { nombre: "Clavel del Cariño",  emoji: "🌸", color: "#f49ac1", centro: "#c2557f", forma: "pompon",   significado: "Un amor que nunca pidió nada a cambio" },
+      { nombre: "Lirio de la Calma",  emoji: "🤍", color: "#fbeef4", centro: "#d77ba3", forma: "orquidea", significado: "La paz que llega con solo escuchar tu voz" },
+      { nombre: "Girasol del Abrazo", emoji: "🌻", color: "#f6c945", centro: "#6b4318", forma: "girasol",  significado: "Tu luz me enseñó a florecer" },
+    ],
+  },
+  {
+    id: "papa",
+    claves: ["papa", "papi", "papito", "padre", "dad"],
+    adorno: "🌳",
+    dedicatoria: "Para quien me enseñó a crecer derecho hacia la luz",
+    papel: 4,   // Azul noche
+    lazo: 3,    // Plata
+    flores: [
+      { nombre: "Crisantemo del Valor", emoji: "🏵️", color: "#e8a33d", centro: "#f8dca0", forma: "pompon",  significado: "Fortaleza que me sostuvo sin que yo lo notara" },
+      { nombre: "Lavanda Serena",       emoji: "💜", color: "#9c86d6", centro: "#6e55a8", forma: "racimo",  significado: "Calma en medio de cualquier tormenta" },
+      { nombre: "Lis del Camino",       emoji: "⚜️", color: "#d9b85c", centro: "#8a6a24", forma: "tulipan", significado: "El camino que me enseñaste a caminar" },
+      { nombre: "Loto del Ejemplo",     emoji: "🪷", color: "#7aa3e6", centro: "#f2d36b", forma: "loto",    significado: "Lo que enseñaste con hechos, no con palabras" },
+    ],
+  },
+  {
+    id: "abuela",
+    claves: ["abuela", "abuelita", "nona", "yaya", "abue"],
+    adorno: "🧶",
+    dedicatoria: "Para quien guarda las historias más bonitas de la familia",
+    papel: 2,   // Rosa
+    lazo: 1,    // Morado
+    flores: [
+      { nombre: "Nomeolvides de las Historias", emoji: "🩵", color: "#86c9f0", centro: "#f6e27a", forma: "redonda", significado: "Cada recuerdo tuyo es un tesoro de la familia" },
+      { nombre: "Jazmín de la Cocina",          emoji: "🌼", color: "#fff4d6", centro: "#f1c95c", forma: "punta", petalos: 6, significado: "El aroma de las tardes en tu casa" },
+      { nombre: "Camelia de la Ternura",        emoji: "🌹", color: "#e8728a", centro: "#f6c7cf", forma: "rosa",    significado: "Una ternura que no se gasta con los años" },
+      { nombre: "Cerezo de los Domingos",       emoji: "🌸", color: "#f7b8cc", centro: "#c94f76", forma: "cerezo",  significado: "Los días más felices siempre empezaban contigo" },
+    ],
+  },
+  {
+    id: "abuelo",
+    claves: ["abuelo", "abuelito", "nono", "tata", "yayo"],
+    adorno: "🎩",
+    dedicatoria: "Para quien plantó las raíces de toda la familia",
+    papel: 3,   // Crema
+    lazo: 4,    // Verde
+    flores: [
+      { nombre: "Roble Florido",            emoji: "🌳", color: "#c98b4a", centro: "#5c3b1a", forma: "girasol", petalos: 14, significado: "Raíces profundas que nos sostienen a todos" },
+      { nombre: "Violeta de la Sabiduría",  emoji: "💙", color: "#7a62d6", centro: "#f2d36b", forma: "redonda", significado: "Consejos que florecen cuando más se necesitan" },
+      { nombre: "Margarita de la Mañana",   emoji: "🌼", color: "#ffffff", centro: "#f4c430", forma: "girasol", petalos: 20, significado: "La alegría sencilla de cada amanecer contigo" },
+      { nombre: "Acacia del Trabajo",       emoji: "💛", color: "#f5d547", centro: "#c9a227", forma: "racimo",  significado: "Todo lo que construiste con tus manos y tu esfuerzo" },
+    ],
+  },
+];
+
+function buscarRamoSecreto(primeraPalabra) {
+  return RAMOS_SECRETOS.find((s) => s.claves.includes(primeraPalabra)) || null;
+}
+
+function estiloDeSecreto(secreto) {
+  return {
+    composicion: "normal",
+    efectos: true,
+    destellos: true,
+    papel: PAPELES[secreto.papel].papel,
+    lazo: LAZOS[secreto.lazo],
+  };
+}
+
 // Papeles de regalo. Colores en [r, g, b].
 // claro/oscuro: degradado del papel de adelante · fondo: papel de atrás · borde: hilos dorados
 const PAPELES = [

@@ -119,8 +119,9 @@ function enlaceDelRamo(nombre) {
   return url.toString();
 }
 
-function mostrarRamo(nombre, ramo, especial, semilla) {
-  const adorno = especial ? "👑" : "✦";
+// secreto (opcional): un ramo secreto de familia (ver RAMOS_SECRETOS en datos.js)
+function mostrarRamo(nombre, ramo, especial, semilla, secreto = null) {
+  const adorno = secreto ? secreto.adorno : especial ? "👑" : "✦";
   const titulo = document.createElement("h2");
   titulo.textContent = `${adorno} El Ramo de ${nombre} ${adorno}`;
 
@@ -129,13 +130,16 @@ function mostrarRamo(nombre, ramo, especial, semilla) {
   ramo.forEach((flor, i) => lista.append(crearTarjetaFlor(flor, i)));
 
   const partes = [titulo];
-  if (especial) {
+  if (especial || secreto) {
     const dedicatoria = document.createElement("p");
     dedicatoria.className = "dedicatoria";
-    dedicatoria.textContent = "Un ramo que no florece para nadie más en el mundo";
+    dedicatoria.textContent = secreto ? secreto.dedicatoria : "Un ramo que no florece para nadie más en el mundo";
     partes.push(dedicatoria);
   }
-  partes.push(lista, crearAccionesRamo(nombre, ramo, especial, semilla));
+  const opciones = secreto
+    ? { estilo: estiloDeSecreto(secreto), textoCompartir: `Un ramo secreto para ${nombre} ${secreto.adorno}`, especialJardin: secreto.id }
+    : {};
+  partes.push(lista, crearAccionesRamo(nombre, ramo, especial, semilla, opciones));
 
   document.getElementById("resultado").replaceChildren(...partes);
 }
@@ -180,7 +184,7 @@ function crearAccionesRamo(nombre, ramo, especial, semilla, opciones = {}) {
 
   const plantar = crearBoton("🌱 Plantar en mi jardín", async () => {
     plantar.disabled = true;
-    const ok = await plantarRamoDescubierto(nombre, ramo, semilla, especial, {
+    const ok = await plantarRamoDescubierto(nombre, ramo, semilla, opciones.especialJardin || especial, {
       id: idJardin,
       enlace: opciones.enlace,
       estilo: opciones.estilo,
@@ -228,10 +232,16 @@ function revelar({ desplazar = true } = {}) {
   }
 
   const clave = normalizarNombre(nombre);
-  const esEva = clave.split(" ")[0] === "eva";
+  const primeraPalabra = clave.split(" ")[0];
+  const esEva = primeraPalabra === "eva";
+  const secreto = buscarRamoSecreto(primeraPalabra);
 
   if (pareja) {
     revelarPareja(nombre, pareja);
+  } else if (secreto) {
+    const semilla = hashTexto(`secreto:${secreto.id}`);
+    dibujarRamo(secreto.flores, semilla, nombre, estiloDeSecreto(secreto));
+    mostrarRamo(nombre, secreto.flores, false, semilla, secreto);
   } else if (esEva) {
     const semilla = hashTexto("eva");
     dibujarRamo(ramoEva, semilla, nombre, ESTILO_EVA);

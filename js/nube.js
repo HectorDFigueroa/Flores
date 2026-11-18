@@ -147,7 +147,32 @@ const nube = {
       de: datos.de,
       fecha: datos.fecha,
       aperturaMs: datos.apertura.toMillis(),
+      autor: datos.autor,
     };
+  },
+
+  // ---------- "visto": regalos/{id}/vistos/primera ----------
+  // Guarda la primera vez que alguien abre el regalo. Si ya existía, las reglas
+  // lo rechazan en silencio (solo cuenta la primera vez).
+  async marcarVisto(id) {
+    try {
+      await setDoc(doc(db, "regalos", id, "vistos", "primera"), { abierto: serverTimestamp() });
+    } catch { /* ya estaba marcado o las reglas aún no lo permiten */ }
+  },
+
+  // Solo quien creó el regalo puede saber si ya lo abrieron (devuelve milisegundos o null)
+  async leerVisto(id) {
+    const visto = await getDoc(doc(db, "regalos", id, "vistos", "primera"));
+    return visto.exists() ? visto.data().abierto.toMillis() : null;
+  },
+
+  // Borra el regalo del servidor: el enlace deja de funcionar
+  async borrarRegalo(id) {
+    const lote = writeBatch(db);
+    lote.delete(doc(db, "regalos", id, "privado", "contenido"));
+    lote.delete(doc(db, "regalos", id, "vistos", "primera"));
+    lote.delete(doc(db, "regalos", id));
+    await lote.commit();
   },
 
   // Antes de la fecha, Firebase responde "permission-denied": el sello es real

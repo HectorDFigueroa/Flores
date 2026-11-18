@@ -515,6 +515,8 @@ async function abrirRegaloDelServidor(id) {
         .filter((i) => Number.isInteger(i) && i >= 0 && i < flores.length)
         .slice(0, MAX_FLORES_REGALO);
       if (indices.length === 0) return null;
+      // Avisa a quien lo envió que ya lo abrieron (si no es esa misma persona mirándolo)
+      if (!(nube.usuario && nube.usuario.uid === sobre.autor)) nube.marcarVisto(id);
       return {
         ...sobre,
         flores: indices,

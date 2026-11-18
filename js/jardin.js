@@ -223,6 +223,12 @@ async function mostrarJardin() {
   contenedor.replaceChildren(...visibles.map(crearTarjetaPlanta));
 }
 
+// "enviado:r-Xb7kQ2pA" -> "Xb7kQ2pA" (solo regalos guardados en el servidor)
+function idServidorDe(item) {
+  const coincidencia = /^enviado:r-([A-Za-z0-9]+)$/.exec(item.id);
+  return coincidencia ? coincidencia[1] : null;
+}
+
 function crearTarjetaPlanta(item) {
   const tipo = TIPOS_PLANTA[item.tipo] || TIPOS_PLANTA.descubierto;
 
@@ -258,6 +264,23 @@ function crearTarjetaPlanta(item) {
 
   enlace.append(etiqueta, titulo, detalle);
 
+  // Regalos enviados desde tu cuenta: ¿ya lo abrieron?
+  const idServidor = idServidorDe(item);
+  if (idServidor && hayCuenta()) {
+    const estado = document.createElement("p");
+    estado.className = "planta-estado";
+    estado.textContent = "…";
+    enlace.append(estado);
+    nube.leerVisto(idServidor)
+      .then((abiertoMs) => {
+        estado.textContent = abiertoMs
+          ? `💌 Lo abrió el ${new Date(abiertoMs).toLocaleDateString("es", { day: "numeric", month: "short" })}`
+          : "✉ Aún sin abrir";
+        estado.classList.toggle("abierto", Boolean(abiertoMs));
+      })
+      .catch(() => estado.remove());   // las reglas nuevas aún no están publicadas
+  }
+
   const acciones = document.createElement("div");
   acciones.className = "planta-acciones";
 
@@ -286,6 +309,20 @@ function crearTarjetaPlanta(item) {
   quitar.setAttribute("aria-label", `Quitar ${tipo.titulo(item)} del jardín`);
   quitar.addEventListener("click", async () => {
     if (!confirm(`¿Quitar "${tipo.titulo(item)}" de tu jardín?`)) return;
+
+    // Un regalo propio guardado en el servidor también se puede borrar de allá
+    if (idServidor && hayCuenta() && confirm(
+      "¿También quieres borrar el regalo? El enlace dejará de funcionar para quien lo tenga.\n\n" +
+      "Aceptar: borrarlo · Cancelar: solo quitarlo de tu jardín"
+    )) {
+      try {
+        await nube.borrarRegalo(idServidor);
+      } catch (error) {
+        console.error("No se pudo borrar el regalo", error);
+        alert("No pudimos borrar el regalo del servidor. Lo quitamos solo de tu jardín.");
+      }
+    }
+
     await quitarDelJardin(item.id);
     mostrarJardin();
   });

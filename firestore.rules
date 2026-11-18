@@ -66,6 +66,22 @@ service cloud.firestore {
         allow delete: if request.auth != null
           && get(/databases/$(database)/documents/regalos/$(id)).data.autor == request.auth.uid;
       }
+
+      // La primera vez que se abre el regalo, para avisarle a quien lo envió.
+      // Lo puede marcar cualquiera (quien recibe no necesita cuenta), pero solo
+      // una vez, solo desde la fecha de apertura y solo con la hora del servidor.
+      match /vistos/{documento} {
+        allow create: if documento == 'primera'
+          && request.resource.data.keys().hasOnly(['abierto'])
+          && request.resource.data.abierto == request.time
+          && request.time >= get(/databases/$(database)/documents/regalos/$(id)).data.apertura;
+
+        // Solo quien creó el regalo puede ver si ya lo abrieron
+        allow get, delete: if request.auth != null
+          && get(/databases/$(database)/documents/regalos/$(id)).data.autor == request.auth.uid;
+
+        allow list, update: if false;
+      }
     }
   }
 }

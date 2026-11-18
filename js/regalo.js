@@ -215,6 +215,17 @@ function alternarFlor(indice) {
   cambioEnElRamo();
 }
 
+// Arma el taller con un ramo listo (por ejemplo, el de una temporada)
+function aplicarRamoAlTaller(ramo) {
+  taller.flores = ramo.flores.filter((i) => flores[i]).slice(0, MAX_FLORES_REGALO);
+  if (PAPELES[ramo.papel]) taller.papel = ramo.papel;
+  if (LAZOS[ramo.lazo]) taller.lazo = ramo.lazo;
+  campos.papel.querySelectorAll("input").forEach((r) => (r.checked = Number(r.value) === taller.papel));
+  campos.lazo.querySelectorAll("input").forEach((r) => (r.checked = Number(r.value) === taller.lazo));
+  if (ramo.para && !campos.para.value) campos.para.value = ramo.para;
+  cambioEnElRamo();
+}
+
 function sugerirFlores() {
   const para = campos.para.value.trim();
   if (!para) {

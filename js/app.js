@@ -348,7 +348,9 @@ function crearCielo() {
   const cantidad = window.innerWidth < 600 ? 9 : 16;
   for (let i = 0; i < cantidad; i++) {
     const s = document.createElement("span");
-    s.className = "petalo";
+    // En temporada caen copos de nieve o corazones en vez de pétalos
+    s.className = temporada && temporada.particula ? `petalo petalo--${temporada.particula}` : "petalo";
+    if (temporada && temporada.particula === "corazon") s.textContent = "♥";
     s.style.cssText =
       `--x:${(Math.random() * 100).toFixed(2)}%;` +
       `--s:${(Math.random() * 8 + 9).toFixed(1)}px;` +
@@ -531,6 +533,7 @@ function iniciar() {
   prepararJardin();
   actualizarNotaTaller();
   mostrarSesion(null);
+  mostrarCintaTemporada();
   prepararBotonSonido();
   prepararInstalacion();
   document.getElementById("abrir-privacidad").addEventListener("click", () => {
@@ -555,6 +558,9 @@ function iniciar() {
 
   if (parametros.has("crear")) {
     cambiarPestana("taller");
+    // Desde la cinta de temporada: el taller llega con el ramo de temporada armado
+    const deTemporada = TEMPORADAS.find((t) => t.id === parametros.get("temporada"));
+    if (deTemporada) aplicarRamoAlTaller(deTemporada.ramo);
     // "Responder con un ramo" llega con los nombres ya puestos
     const para = (parametros.get("para") || "").trim().slice(0, 40);
     const de = (parametros.get("de") || "").trim().slice(0, 40);

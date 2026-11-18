@@ -41,7 +41,7 @@ function crearAleatorio(semilla) {
 // Elige flores distintas mezclando la lista con la semilla del nombre
 function elegirFlores(semilla, cantidad = FLORES_POR_RAMO) {
   const aleatorio = crearAleatorio(semilla);
-  const mezcla = [...flores];
+  const mezcla = flores.slice(0, FLORES_CLASICAS);
   for (let i = mezcla.length - 1; i > 0; i--) {
     const j = Math.floor(aleatorio() * (i + 1));
     [mezcla[i], mezcla[j]] = [mezcla[j], mezcla[i]];

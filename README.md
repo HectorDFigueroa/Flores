@@ -39,6 +39,7 @@ tu-ramo-magico/
 ├── styles.css       # Estilos y diseño visual
 └── js/
     ├── datos.js     # Flores, ramo de Eva, papeles y lazos
+    ├── temporadas.js # Navidad, San Valentín, Día de la Madre y Amor y Amistad
     ├── ramo.js      # Lógica del ramo y dibujo con p5.js
     ├── imagen.js    # Imagen para descargar y código QR
     ├── video.js     # Video del ramo creciendo, con las campanitas

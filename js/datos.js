@@ -27,7 +27,18 @@ const flores = [
   { nombre: "Begonia",     emoji: "🧡", color: "#f08a4b", centro: "#f7d06b", forma: "redonda", significado: "Imaginación desbordante y mente siempre en movimiento" },
   { nombre: "Camelia",     emoji: "🌹", color: "#e8586e", centro: "#f6c7cf", forma: "rosa",    significado: "Admiración callada, belleza que no necesita aplausos" },
   { nombre: "Nomeolvides", emoji: "🩵", color: "#86c9f0", centro: "#f6e27a", forma: "redonda", significado: "Memorias eternas grabadas en el corazón para siempre" },
+
+  // ---- Flores nuevas: solo en el taller de regalos y las temporadas ----
+  // (el ramo de cada nombre usa solo las 20 clásicas, para que no cambie)
+  { nombre: "Flor de Pascua", emoji: "🎄", color: "#d42a3c", centro: "#f2c94c", forma: "punta",   petalos: 7, significado: "Alegría que ilumina las noches más frías del año" },
+  { nombre: "Tulipán",        emoji: "🌷", color: "#ff6f91", centro: "#b8405e", forma: "tulipan", significado: "Amor declarado sin miedo y con el corazón abierto" },
+  { nombre: "Lirio",          emoji: "🤍", color: "#fbe7f0", centro: "#e07aa0", forma: "orquidea", significado: "Un alma noble que embellece todo lo que toca" },
+  { nombre: "Hortensia",      emoji: "💠", color: "#8fa8f0", centro: "#c9d6ff", forma: "pompon",  significado: "Gratitud sincera por existir y por estar" },
+  { nombre: "Margarita",      emoji: "🌼", color: "#ffffff", centro: "#f4c430", forma: "girasol", petalos: 20, significado: "Inocencia alegre que hace sonreír a cualquiera" },
 ];
+
+// Las 20 flores originales (las únicas que salen al descubrir un ramo por nombre)
+const FLORES_CLASICAS = 20;
 
 // Ramo especial de Eva: flores únicas que no existen en ningún otro ramo
 const ramoEva = [
@@ -63,6 +74,8 @@ const PAPELES = [
   { nombre: "Rosa",       muestra: "#e49ab5", papel: { claro: [228, 154, 181], oscuro: [120, 52, 84], fondo: [160, 82, 116], borde: [255, 232, 196] } },
   { nombre: "Crema",      muestra: "#efe2c8", papel: { claro: [239, 226, 200], oscuro: [150, 124, 88], fondo: [196, 174, 136], borde: [190, 150, 70] } },
   { nombre: "Azul noche", muestra: "#3a5296", papel: { claro: [58, 82, 150],  oscuro: [14, 20, 48],  fondo: [28, 40, 86],   borde: [200, 212, 255] } },
+  // (agregar siempre al final: los enlaces guardan la posición)
+  { nombre: "Rojo Navidad", muestra: "#b3202f", papel: { claro: [190, 40, 56], oscuro: [70, 10, 20], fondo: [120, 24, 36], borde: [240, 210, 130] } },
 ];
 
 // Lazos. color: la cinta · borde: el ribete (null = sin ribete)
@@ -71,6 +84,7 @@ const LAZOS = [
   { nombre: "Morado", muestra: "#9652c8", color: [150, 82, 200], borde: [232, 196, 110] },
   { nombre: "Rojo",   muestra: "#c41e3a", color: [196, 30, 58],  borde: [232, 196, 110] },
   { nombre: "Plata",  muestra: "#c8ccdc", color: [200, 204, 220], borde: [255, 255, 255] },
+  { nombre: "Verde",  muestra: "#2f7a4a", color: [47, 122, 74],   borde: [232, 196, 110] },
 ];
 
 // Estilos de dibujo del ramo

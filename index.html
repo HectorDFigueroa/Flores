@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=9" />
   <!-- p5.js: dibuja el ramo animado · qrcode-generator: códigos QR de los regalos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -60,8 +60,17 @@
         <form class="formulario" id="formulario" novalidate>
           <label for="nombreInput" class="solo-lectores">Tu nombre</label>
           <input type="text" id="nombreInput" placeholder="Escribe tu nombre..." maxlength="40" autocomplete="given-name" />
+          <!-- Segundo nombre (ramo de dos): aparece con "Combinar con otro nombre" -->
+          <div class="fila-pareja" id="fila-pareja" hidden>
+            <span class="fila-pareja-y" aria-hidden="true">💞 y</span>
+            <label for="nombrePareja" class="solo-lectores">Otro nombre</label>
+            <input type="text" id="nombrePareja" placeholder="Otro nombre..." maxlength="40" autocomplete="off" />
+          </div>
           <button id="boton" type="submit">Revelar mi ramo <span aria-hidden="true">✿</span></button>
         </form>
+
+        <button type="button" class="enlace-boton boton-pareja" id="boton-pareja" aria-controls="fila-pareja" aria-expanded="false">💞 Combinar con otro nombre</button>
+
         <p id="mensaje" class="mensaje" role="status" aria-live="polite"></p>
       </div>
 
@@ -214,15 +223,16 @@
   <!-- Activar / silenciar las campanitas -->
   <button type="button" class="boton-sonido" id="boton-sonido">🔔</button>
 
-  <script src="js/datos.js?v=7"></script>
-  <script src="js/sonido.js?v=7"></script>
-  <script src="js/ramo.js?v=7"></script>
-  <script src="js/imagen.js?v=7"></script>
-  <script src="js/video.js?v=7"></script>
-  <script src="js/regalo.js?v=7"></script>
-  <script src="js/jardin.js?v=7"></script>
-  <script src="js/app.js?v=7"></script>
+  <script src="js/datos.js?v=9"></script>
+  <script src="js/sonido.js?v=9"></script>
+  <script src="js/ramo.js?v=9"></script>
+  <script src="js/imagen.js?v=9"></script>
+  <script src="js/video.js?v=9"></script>
+  <script src="js/regalo.js?v=9"></script>
+  <script src="js/pareja.js?v=9"></script>
+  <script src="js/jardin.js?v=9"></script>
+  <script src="js/app.js?v=9"></script>
   <!-- Firebase: sesión con Google, jardín en la nube y regalos guardados -->
-  <script type="module" src="js/nube.js?v=7"></script>
+  <script type="module" src="js/nube.js?v=9"></script>
 </body>
 </html>

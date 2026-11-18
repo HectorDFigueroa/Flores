@@ -116,15 +116,16 @@ function claveDeRegalo(regalo, idServidor) {
   return idServidor ? `r-${idServidor}` : hashTexto(codificarRegalo(regalo)).toString(36);
 }
 
-async function plantarRamoDescubierto(nombre, ramo, semilla, especial) {
-  const estilo = especial ? ESTILO_EVA : ESTILO_NORMAL;
+// extra (opcional): { id, enlace, estilo } para ramos como el de dos nombres
+async function plantarRamoDescubierto(nombre, ramo, semilla, especial, extra = {}) {
+  const estilo = extra.estilo || (especial ? ESTILO_EVA : ESTILO_NORMAL);
   return plantarEnJardin({
-    id: `descubierto:${normalizarNombre(nombre)}`,
+    id: extra.id || `descubierto:${normalizarNombre(nombre)}`,
     tipo: "descubierto",
     nombre,
     especial,
     flores: especial ? [] : ramo.map((f) => flores.indexOf(f)),
-    enlace: enlaceDelRamo(nombre),
+    enlace: extra.enlace || enlaceDelRamo(nombre),
     miniatura: await generarMiniatura(ramo, semilla, estilo),
   });
 }

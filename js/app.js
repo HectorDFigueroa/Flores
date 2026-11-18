@@ -5,7 +5,8 @@
 // ---------- piezas reutilizables ----------
 
 // Tarjeta de una flor. Se construye con textContent para que nada se interprete como HTML.
-function crearTarjetaFlor(flor, indice) {
+// etiqueta (opcional): un texto pequeño junto al nombre, por ejemplo "de Ana"
+function crearTarjetaFlor(flor, indice, etiqueta) {
   const tarjeta = document.createElement("div");
   tarjeta.className = "flor";
   tarjeta.style.setProperty("--i", indice);
@@ -24,6 +25,13 @@ function crearTarjetaFlor(flor, indice) {
   significado.className = "significado";
   significado.textContent = flor.significado;
   texto.append(nombre, significado);
+
+  if (etiqueta) {
+    const marca = document.createElement("span");
+    marca.className = "etiqueta-flor";
+    marca.textContent = etiqueta;
+    nombre.append(" ", marca);
+  }
 
   tarjeta.append(emoji, texto);
   return tarjeta;
@@ -132,7 +140,9 @@ function mostrarRamo(nombre, ramo, especial, semilla) {
   document.getElementById("resultado").replaceChildren(...partes);
 }
 
-function crearAccionesRamo(nombre, ramo, especial, semilla) {
+// opciones (para el ramo de dos nombres): enlace, textoCompartir, idJardin, estilo, info
+function crearAccionesRamo(nombre, ramo, especial, semilla, opciones = {}) {
+  const idJardin = opciones.idJardin || `descubierto:${normalizarNombre(nombre)}`;
   const zona = document.createElement("div");
   zona.className = "compartir";
 
@@ -141,10 +151,10 @@ function crearAccionesRamo(nombre, ramo, especial, semilla) {
   aviso.setAttribute("role", "status");
 
   const compartir = crearBoton("Compartir enlace 🔗", async () => {
-    const url = enlaceDelRamo(nombre);
-    const texto = especial
+    const url = opciones.enlace || enlaceDelRamo(nombre);
+    const texto = opciones.textoCompartir || (especial
       ? `Un ramo mágico que florece solo para ${nombre} 👑🌹`
-      : `Mira el ramo mágico de ${nombre} 🌸`;
+      : `Mira el ramo mágico de ${nombre} 🌸`);
 
     // En el celular abre el menú nativo (WhatsApp, Instagram...)
     if (navigator.share) {
@@ -164,13 +174,17 @@ function crearAccionesRamo(nombre, ramo, especial, semilla) {
     }
   });
 
-  const infoRamo = () => ({ titulo: `El Ramo de ${nombre}`, flores: ramo.map((f) => f.nombre) });
+  const infoRamo = opciones.info || (() => ({ titulo: `El Ramo de ${nombre}`, flores: ramo.map((f) => f.nombre) }));
   const imagen = crearBotonImagen(infoRamo, nombre, aviso);
   const video = crearBotonVideo(infoRamo, nombre, aviso);
 
   const plantar = crearBoton("🌱 Plantar en mi jardín", async () => {
     plantar.disabled = true;
-    const ok = await plantarRamoDescubierto(nombre, ramo, semilla, especial);
+    const ok = await plantarRamoDescubierto(nombre, ramo, semilla, especial, {
+      id: idJardin,
+      enlace: opciones.enlace,
+      estilo: opciones.estilo,
+    });
     if (ok) {
       sonido.plantar();
       plantar.textContent = "✓ Está en tu jardín";
@@ -179,7 +193,7 @@ function crearAccionesRamo(nombre, ramo, especial, semilla) {
       aviso.textContent = "No se pudo guardar en este navegador 😔";
     }
   });
-  estaEnJardin(`descubierto:${normalizarNombre(nombre)}`).then((ya) => {
+  estaEnJardin(idJardin).then((ya) => {
     if (ya) {
       plantar.disabled = true;
       plantar.textContent = "✓ Está en tu jardín";
@@ -205,10 +219,20 @@ function revelar({ desplazar = true } = {}) {
   }
   limpiarMensaje();
 
+  // ¿Ramo de dos nombres?
+  const pareja = filaPareja.hidden ? "" : inputPareja.value.trim().replace(/\s+/g, " ");
+  if (!filaPareja.hidden && !pareja) {
+    mostrarMensaje("Escribe el otro nombre, o toca «Solo mi nombre» 💞");
+    inputPareja.focus();
+    return;
+  }
+
   const clave = normalizarNombre(nombre);
   const esEva = clave.split(" ")[0] === "eva";
 
-  if (esEva) {
+  if (pareja) {
+    revelarPareja(nombre, pareja);
+  } else if (esEva) {
     const semilla = hashTexto("eva");
     dibujarRamo(ramoEva, semilla, nombre, ESTILO_EVA);
     mostrarRamo(nombre, ramoEva, true, semilla);
@@ -220,7 +244,7 @@ function revelar({ desplazar = true } = {}) {
   }
 
   // La barra de direcciones queda con el enlace de este ramo
-  history.replaceState(null, "", enlaceDelRamo(nombre));
+  if (!pareja) history.replaceState(null, "", enlaceDelRamo(nombre));
 
   if (desplazar) {
     document.getElementById("canvas-contenedor").scrollIntoView({
@@ -236,6 +260,26 @@ formulario.addEventListener("submit", (e) => {
 });
 
 input.addEventListener("input", limpiarMensaje);
+
+// Mostrar / ocultar el segundo nombre
+const filaPareja = document.getElementById("fila-pareja");
+const inputPareja = document.getElementById("nombrePareja");
+const botonPareja = document.getElementById("boton-pareja");
+
+function mostrarCampoPareja(visible) {
+  filaPareja.hidden = !visible;
+  botonPareja.textContent = visible ? "✕ Solo mi nombre" : "💞 Combinar con otro nombre";
+  botonPareja.setAttribute("aria-expanded", String(visible));
+  input.placeholder = visible ? "Un nombre..." : "Escribe tu nombre...";
+  document.getElementById("boton").firstChild.textContent = visible ? "Revelar nuestro ramo " : "Revelar mi ramo ";
+}
+
+botonPareja.addEventListener("click", () => {
+  mostrarCampoPareja(filaPareja.hidden);
+  limpiarMensaje();
+  if (!filaPareja.hidden) inputPareja.focus();
+});
+inputPareja.addEventListener("input", limpiarMensaje);
 
 
 // ---------- Pestañas ----------
@@ -490,6 +534,11 @@ function iniciar() {
   const nombre = parametros.get("nombre");
   if (nombre && nombre.trim()) {
     input.value = nombre.trim().slice(0, 40);
+    const otro = (parametros.get("y") || "").trim().slice(0, 40);
+    if (otro) {
+      mostrarCampoPareja(true);
+      inputPareja.value = otro;
+    }
     revelar({ desplazar: false });
   }
 }

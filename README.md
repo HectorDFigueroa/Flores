@@ -13,6 +13,7 @@
 ## ✨ Funcionalidades
 
 - 🌺 Ramo animado y único para cada nombre, dibujado con p5.js
+- 💞 **Ramo de dos nombres:** flores combinadas, afinidad floral y una frase sobre los dos
 - ✉️ **Taller de regalos:** elige flores, papel, lazo, mensaje y fecha de apertura
 - 🔒 Regalos sellados con cuenta regresiva hasta la fecha elegida
 - 🔗 Enlaces directos (`?nombre=Ana`) y códigos QR para compartir
@@ -42,6 +43,7 @@ tu-ramo-magico/
     ├── imagen.js    # Imagen para descargar y código QR
     ├── video.js     # Video del ramo creciendo, con las campanitas
     ├── regalo.js    # Taller de regalos y sobre sellado
+    ├── pareja.js    # Ramo de dos nombres: flores combinadas y afinidad floral
     ├── jardin.js    # Mi jardín: ramos guardados y flor del día
     ├── sonido.js    # Campanitas con la Web Audio API (sin archivos de audio)
     ├── app.js       # Pestañas, sesión, "Descubre tu ramo" y arranque

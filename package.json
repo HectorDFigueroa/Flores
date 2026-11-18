@@ -1,0 +1,8 @@
+{
+  "name": "tu-ramo-magico",
+  "private": true,
+  "description": "Descubre las flores que florecen con tu nombre, o envía un ramo a alguien especial.",
+  "scripts": {
+    "test": "node --test"
+  }
+}

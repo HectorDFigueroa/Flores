@@ -54,7 +54,22 @@ manifest.json        # App instalable: nombre, colores e íconos
 sw.js                # Service worker: abre sin internet y siempre trae la versión nueva
 img/                 # Íconos de la app y vista previa para compartir
 firestore.rules      # Reglas de seguridad de la base de datos (se pegan en la consola de Firebase)
+pruebas/             # Pruebas automáticas de la lógica (npm test)
 ```
+
+---
+
+## 🧪 Pruebas
+
+Antes de publicar un cambio, corre las pruebas (solo necesitas [Node.js](https://nodejs.org), sin instalar nada más):
+
+```bash
+npm test
+```
+
+Revisan que el ramo de cada nombre **no cambie nunca**, que los enlaces de regalo se codifiquen bien (con emojis y tildes), que un enlace manipulado se rechace, que el ramo de dos nombres no dependa del orden, que las temporadas se activen en sus fechas y que los datos (flores, papeles, lazos) sean coherentes.
+
+> 💡 Al publicar cambios en `styles.css` o en `js/`, sube el número `?v=` en `index.html` y la `VERSION` de `sw.js`, para que los navegadores descarguen la versión nueva.
 
 ---
 
@@ -63,6 +78,8 @@ firestore.rules      # Reglas de seguridad de la base de datos (se pegan en la c
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![p5.js](https://img.shields.io/badge/p5.js-ED225D?style=for-the-badge&logo=p5dotjs&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 
 ---
 

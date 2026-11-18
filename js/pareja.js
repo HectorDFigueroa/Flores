@@ -48,10 +48,14 @@ function mayuscula(texto) {
 
 // Calcula el ramo combinado. El orden de los nombres no cambia el resultado.
 function ramoDePareja(nombreA, nombreB) {
-  const claveA = normalizarNombre(nombreA);
-  const claveB = normalizarNombre(nombreB);
-  const [primero, segundo] = [claveA, claveB].sort();
-  const semilla = hashTexto(`${primero}&${segundo}`);
+  // Se trabaja siempre en orden alfabético, para que "Ana y Leo" = "Leo y Ana".
+  // "a" y "b" son el primero y el segundo nombre en ese orden.
+  const claveA0 = normalizarNombre(nombreA);
+  const claveB0 = normalizarNombre(nombreB);
+  const invertido = claveB0 < claveA0;
+  const [claveA, claveB] = invertido ? [claveB0, claveA0] : [claveA0, claveB0];
+  const nombres = invertido ? { a: nombreB, b: nombreA } : { a: nombreA, b: nombreB };
+  const semilla = hashTexto(`${claveA}&${claveB}`);
 
   const floresA = elegirFlores(hashTexto(claveA));
   const floresB = elegirFlores(hashTexto(claveB));
@@ -78,7 +82,7 @@ function ramoDePareja(nombreA, nombreB) {
   if (comunes.length) frase += `. Y los dos comparten ${ESENCIAS[comunes[0].nombre]}`;
   if (mismoNombre) frase = "¡Mismo nombre, mismo jardín! Este ramo es un espejo";
 
-  return { ramo, origen, semilla, afinidad, frase: `${frase}.`, comunes };
+  return { ramo, origen, nombres, semilla, afinidad, frase: `${frase}.`, comunes };
 }
 
 function enlaceDePareja(nombreA, nombreB) {
@@ -113,7 +117,7 @@ function mostrarRamoPareja(nombreA, nombreB, datos) {
   frase.className = "carta carta-texto frase-pareja";
   frase.textContent = datos.frase;
 
-  const nombres = { a: nombreA, b: nombreB, ambos: "los dos" };
+  const nombres = { ...datos.nombres, ambos: "los dos" };
   const lista = document.createElement("div");
   lista.className = "flores-lista";
   datos.ramo.forEach((flor, i) => {

@@ -46,6 +46,17 @@ function crearBoton(texto, alHacerClic) {
   return boton;
 }
 
+// Abre WhatsApp con el mensaje y el enlace ya escritos (app en el celular, WhatsApp Web en el computador)
+function crearEnlaceWhatsApp(texto, url) {
+  const enlace = document.createElement("a");
+  enlace.className = "boton-secundario boton-enlace";
+  enlace.href = `https://wa.me/?text=${encodeURIComponent(`${texto}\n${url}`)}`;
+  enlace.target = "_blank";
+  enlace.rel = "noopener";
+  enlace.textContent = "WhatsApp 💬";
+  return enlace;
+}
+
 // Botón "Guardar imagen". obtenerInfo se llama al hacer clic, así la imagen sale del ramo actual.
 function crearBotonImagen(obtenerInfo, nombre, aviso) {
   const boton = crearBoton("Guardar imagen 📷", async () => {
@@ -155,12 +166,12 @@ function crearAccionesRamo(nombre, ramo, especial, semilla, opciones = {}) {
   aviso.className = "aviso-compartir";
   aviso.setAttribute("role", "status");
 
-  const compartir = crearBoton("Compartir enlace 🔗", async () => {
-    const url = opciones.enlace || enlaceDelRamo(nombre);
-    const texto = opciones.textoCompartir || (especial
-      ? `Un ramo mágico que florece solo para ${nombre} 👑🌹`
-      : `Mira el ramo mágico de ${nombre} 🌸`);
+  const url = opciones.enlace || enlaceDelRamo(nombre);
+  const texto = opciones.textoCompartir || (especial
+    ? `Un ramo mágico que florece solo para ${nombre} 👑🌹`
+    : `Mira el ramo mágico de ${nombre} 🌸`);
 
+  const compartir = crearBoton("Compartir enlace 🔗", async () => {
     // En el celular abre el menú nativo (WhatsApp, Instagram...)
     if (navigator.share) {
       try {
@@ -207,7 +218,7 @@ function crearAccionesRamo(nombre, ramo, especial, semilla, opciones = {}) {
 
   const fila = document.createElement("div");
   fila.className = "fila-botones";
-  fila.append(compartir, imagen);
+  fila.append(compartir, crearEnlaceWhatsApp(texto, url), imagen);
   if (video) fila.append(video);
   fila.append(plantar);
   zona.append(fila, aviso);

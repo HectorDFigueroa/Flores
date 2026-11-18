@@ -982,6 +982,18 @@ fieldset.campo > legend {
   margin-bottom: 30px;
 }
 
+/* Ya abierto: solo queda el título, más cerca del ramo */
+.regalo.abierta h1 {
+  margin-bottom: 0;
+  outline: none;
+}
+
+.sobre[hidden],
+.cuenta[hidden],
+.sobre-instruccion[hidden] {
+  display: none;
+}
+
 .sobre {
   position: relative;
   width: min(420px, 92%);

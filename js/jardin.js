@@ -266,6 +266,17 @@ let vistaJardin = (() => {
   }
 })();
 
+// Solo se usan direcciones web normales (http/https). Un ramo guardado con un
+// enlace "javascript:..." (por ejemplo, manipulado a mano) nunca se ejecuta.
+function enlaceSeguro(direccion) {
+  try {
+    const url = new URL(direccion, window.location.href);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : "./";
+  } catch {
+    return "./";
+  }
+}
+
 // "enviado:r-Xb7kQ2pA" -> "Xb7kQ2pA" (solo regalos guardados en el servidor)
 function idServidorDe(item) {
   const coincidencia = /^enviado:r-([A-Za-z0-9]+)$/.exec(item.id);
@@ -280,7 +291,7 @@ function crearTarjetaPlanta(item) {
 
   const enlace = document.createElement("a");
   enlace.className = "planta-enlace";
-  enlace.href = item.enlace;
+  enlace.href = enlaceSeguro(item.enlace);
 
   if (item.miniatura) {
     const imagen = document.createElement("img");
@@ -336,7 +347,7 @@ function crearTarjetaPlanta(item) {
     copiar.setAttribute("aria-label", `Copiar enlace del regalo ${tipo.titulo(item)}`);
     copiar.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(item.enlace);
+        await navigator.clipboard.writeText(enlaceSeguro(item.enlace));
         copiar.textContent = "✓";
         setTimeout(() => (copiar.textContent = "🔗"), 1500);
       } catch { /* sin permiso para copiar */ }

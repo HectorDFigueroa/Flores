@@ -413,16 +413,15 @@ function mostrarRegaloListo(regalo, url, enServidor) {
 
   botones.append(copiar);
 
+  const textoRegalo = regalo.de
+    ? `${regalo.de} te envió un ramo mágico ✉🌸`
+    : `Alguien te envió un ramo mágico ✉🌸`;
+  botones.append(crearEnlaceWhatsApp(textoRegalo, url));
+
   if (navigator.share) {
     botones.append(crearBoton("Compartir", async () => {
       try {
-        await navigator.share({
-          title: "Tu Ramo Mágico",
-          text: regalo.de
-            ? `${regalo.de} te envió un ramo mágico ✉🌸`
-            : `Alguien te envió un ramo mágico ✉🌸`,
-          url,
-        });
+        await navigator.share({ title: "Tu Ramo Mágico", text: textoRegalo, url });
       } catch { /* la persona cerró el menú */ }
     }));
   }
@@ -627,10 +626,17 @@ async function abrirSobre(obtenerContenido, clave) {
   const espera = reducirMovimiento ? 0 : 1100;
 
   setTimeout(() => {
-    document.getElementById("vista-regalo").hidden = true;
+    // Se va el sobre, pero el título ("… te envió un ramo") queda arriba del ramo
+    ["sobre", "sobre-instruccion", "cuenta"].forEach((id) => (document.getElementById(id).hidden = true));
+    document.getElementById("vista-regalo").classList.add("abierta");
     dibujarRamo(regalo.flores.map((i) => flores[i]), regalo.semilla, regalo.para, estiloDelRegalo(regalo));
     mostrarContenidoRegalo(regalo);
     window.scrollTo({ top: 0, behavior: "auto" });
+    // El sello (que tenía el foco) desapareció: el foco pasa al título,
+    // así los lectores de pantalla anuncian el regalo
+    const titulo = document.getElementById("regalo-titulo");
+    titulo.tabIndex = -1;
+    titulo.focus({ preventScroll: true });
     // Cada regalo que abres se planta en tu jardín
     plantarRegalo("recibido", regalo, window.location.href, clave);
   }, espera);

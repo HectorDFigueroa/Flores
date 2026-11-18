@@ -419,6 +419,9 @@ function iniciar() {
   actualizarNotaTaller();
   mostrarSesion(null);
   prepararBotonSonido();
+  document.getElementById("abrir-privacidad").addEventListener("click", () => {
+    document.getElementById("dialogo-privacidad").showModal();
+  });
   const parametros = new URLSearchParams(window.location.search);
 
   if (parametros.has("r")) {

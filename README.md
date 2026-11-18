@@ -19,9 +19,11 @@
 - 📷 Guarda cualquier ramo como imagen lista para redes sociales
 - 💌 Responde a un regalo con otro ramo en un clic
 - 🌙 **Mi jardín:** colección de ramos descubiertos, enviados y recibidos, más la flor del día
-- 📱 Diseño responsive para móvil y escritorio
-
 - 🔐 **Inicio de sesión con Google** (Firebase): jardín en la nube, enlaces cortos y sellos de fecha que nadie puede saltarse
+- 🔔 Campanitas mágicas al abrirse cada flor y al romper el sello (con botón para silenciar)
+- 🖼️ Vista previa con imagen al compartir el enlace en WhatsApp y redes
+- 🛡️ Nota de privacidad clara: qué se guarda, quién lo ve y qué no hacemos
+- 📱 Diseño responsive para móvil y escritorio
 
 > Sin iniciar sesión todo sigue funcionando: el jardín se guarda en el navegador y el regalo viaja dentro del enlace.
 

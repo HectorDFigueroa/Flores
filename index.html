@@ -9,11 +9,19 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Tu Ramo Mágico 🌸" />
   <meta property="og:description" content="Descubre las flores que florecen con tu nombre, o envía un ramo a alguien especial." />
+  <!-- Imagen que aparece al pegar el enlace en WhatsApp, Telegram, etc. (debe ser una dirección completa) -->
+  <meta property="og:url" content="https://hectordfigueroa.github.io/Flores/" />
+  <meta property="og:image" content="https://hectordfigueroa.github.io/Flores/img/vista-previa.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Un ramo de flores dibujado sobre un cielo nocturno, junto al título Tu Ramo Mágico" />
+  <meta property="og:locale" content="es_CO" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
   <!-- p5.js: dibuja el ramo animado · qrcode-generator: códigos QR de los regalos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -168,19 +176,52 @@
 
   </main>
 
-  <footer class="pie">Hecho con ❤️ y flores</footer>
+  <footer class="pie">
+    Hecho con ❤️ y flores ·
+    <button type="button" class="enlace-boton enlace-pie" id="abrir-privacidad">Privacidad</button>
+  </footer>
+
+  <!-- Nota de privacidad -->
+  <dialog class="dialogo" id="dialogo-privacidad" aria-labelledby="privacidad-titulo">
+    <h2 id="privacidad-titulo">Tu privacidad 🌙</h2>
+
+    <h3>Sin iniciar sesión</h3>
+    <ul>
+      <li>Tu nombre y tus ramos <strong>no salen de tu navegador</strong>: el jardín se guarda solo en este dispositivo.</li>
+      <li>Los regalos viajan <strong>dentro del enlace</strong>: cualquiera que tenga el enlace puede leerlos.</li>
+    </ul>
+
+    <h3>Con tu cuenta de Google</h3>
+    <ul>
+      <li>Usamos tu <strong>nombre, correo y foto</strong> solo para mostrar tu sesión.</li>
+      <li><strong>Tu jardín</strong> se guarda en tu cuenta y solo tú puedes verlo.</li>
+      <li>Los <strong>regalos que creas</strong> (para, de, flores y mensaje) los puede ver quien tenga el enlace. El mensaje y las flores quedan ocultos hasta la fecha de apertura.</li>
+    </ul>
+
+    <h3>Lo que no hacemos</h3>
+    <ul>
+      <li>No hay publicidad ni estadísticas de visitas, y no vendemos ni compartimos tus datos.</li>
+    </ul>
+
+    <p>Puedes quitar ramos de tu jardín cuando quieras. Para borrar tu cuenta y todos tus datos, escribe al autor en
+      <a href="https://github.com/HectorDFigueroa/Flores/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+
+    <form method="dialog">
+      <button type="submit">Entendido ✿</button>
+    </form>
+  </dialog>
 
   <!-- Activar / silenciar las campanitas -->
   <button type="button" class="boton-sonido" id="boton-sonido">🔔</button>
 
-  <script src="js/datos.js?v=3"></script>
-  <script src="js/sonido.js?v=3"></script>
-  <script src="js/ramo.js?v=3"></script>
-  <script src="js/imagen.js?v=3"></script>
-  <script src="js/regalo.js?v=3"></script>
-  <script src="js/jardin.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/datos.js?v=4"></script>
+  <script src="js/sonido.js?v=4"></script>
+  <script src="js/ramo.js?v=4"></script>
+  <script src="js/imagen.js?v=4"></script>
+  <script src="js/regalo.js?v=4"></script>
+  <script src="js/jardin.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
   <!-- Firebase: sesión con Google, jardín en la nube y regalos guardados -->
-  <script type="module" src="js/nube.js?v=3"></script>
+  <script type="module" src="js/nube.js?v=4"></script>
 </body>
 </html>

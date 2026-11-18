@@ -318,7 +318,7 @@ function avisoSesion(texto) {
   const aviso = document.getElementById("aviso-sesion");
   aviso.textContent = texto;
   clearTimeout(avisoSesion.espera);
-  avisoSesion.espera = setTimeout(() => (aviso.textContent = ""), 6000);
+  avisoSesion.espera = setTimeout(() => (aviso.textContent = ""), 9000);
 }
 
 function explicarErrorSesion(error) {
@@ -330,12 +330,9 @@ function explicarErrorSesion(error) {
   return mensajes[error.code] || "No se pudo iniciar sesión. Inténtalo de nuevo.";
 }
 
+// El botón se muestra desde el principio, aunque Firebase todavía no haya cargado
 function mostrarSesion(usuario) {
   const caja = document.getElementById("sesion");
-  if (!window.nube) {
-    caja.replaceChildren();
-    return;
-  }
 
   if (!usuario) {
     const entrar = document.createElement("button");
@@ -344,6 +341,13 @@ function mostrarSesion(usuario) {
     entrar.innerHTML = ICONO_GOOGLE;
     entrar.append(" Iniciar sesión");
     entrar.addEventListener("click", async () => {
+      if (!window.nube) {
+        // Firebase no cargó: sin internet o un bloqueador de anuncios lo impidió
+        avisoSesion(
+          "No se pudo cargar el inicio de sesión. Recarga la página; si usas un bloqueador de anuncios, desactívalo para este sitio."
+        );
+        return;
+      }
       entrar.disabled = true;
       try {
         await nube.iniciarSesion();
@@ -412,6 +416,7 @@ function iniciar() {
   crearCielo();
   prepararJardin();
   actualizarNotaTaller();
+  mostrarSesion(null);
   const parametros = new URLSearchParams(window.location.search);
 
   if (parametros.has("r")) {

@@ -531,6 +531,16 @@ function prepararInstalacion() {
   });
   document.getElementById("barra-superior").prepend(boton);
 
+  // iPhone/iPad: Safari no avisa que se puede instalar, así que el botón muestra
+  // los pasos ("Compartir → Agregar a inicio"). Si ya está instalada, no aparece.
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);   // iPad con iPadOS
+  const yaInstalada = navigator.standalone || window.matchMedia("(display-mode: standalone)").matches;
+  if (esIOS && !yaInstalada) {
+    boton.hidden = false;
+    boton.addEventListener("click", () => document.getElementById("dialogo-ios").showModal());
+  }
+
   window.addEventListener("beforeinstallprompt", (evento) => {
     evento.preventDefault();
     invitacion = evento;

@@ -142,6 +142,7 @@ function crearAccionesRamo(nombre, ramo, especial, semilla) {
     plantar.disabled = true;
     const ok = await plantarRamoDescubierto(nombre, ramo, semilla, especial);
     if (ok) {
+      sonido.plantar();
       plantar.textContent = "✓ Está en tu jardín";
     } else {
       plantar.disabled = false;
@@ -417,6 +418,7 @@ function iniciar() {
   prepararJardin();
   actualizarNotaTaller();
   mostrarSesion(null);
+  prepararBotonSonido();
   const parametros = new URLSearchParams(window.location.search);
 
   if (parametros.has("r")) {

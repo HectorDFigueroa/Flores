@@ -494,6 +494,31 @@ h2 {
   margin: 0 0 6px;
 }
 
+/* ---------- Botón de sonido ---------- */
+.boton-sonido {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 5;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid var(--borde-vidrio);
+  background: rgba(11, 8, 32, 0.6);
+  color: var(--crema);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  font-size: 1.2rem;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.boton-sonido:hover {
+  transform: none;
+  filter: none;
+  border-color: var(--dorado);
+  box-shadow: 0 6px 24px rgba(226, 194, 122, 0.25);
+}
+
 /* ---------- Pestañas ---------- */
 .pestanas {
   display: inline-flex;

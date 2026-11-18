@@ -39,6 +39,7 @@ tu-ramo-magico/
     ├── imagen.js    # Imagen para descargar y código QR
     ├── regalo.js    # Taller de regalos y sobre sellado
     ├── jardin.js    # Mi jardín: ramos guardados y flor del día
+    ├── sonido.js    # Campanitas con la Web Audio API (sin archivos de audio)
     ├── app.js       # Pestañas, sesión, "Descubre tu ramo" y arranque
     └── nube.js      # Firebase: inicio de sesión con Google, jardín y regalos en la nube
 firestore.rules      # Reglas de seguridad de la base de datos (se pegan en la consola de Firebase)

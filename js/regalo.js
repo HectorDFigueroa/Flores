@@ -582,6 +582,8 @@ let abriendoSobre = false;
 async function abrirSobre(obtenerContenido, clave) {
   if (abriendoSobre) return;
   abriendoSobre = true;
+  // Suena dentro del mismo clic: así el navegador deja reproducir audio
+  sonido.sello();
 
   const sello = document.getElementById("sello");
   const instruccion = document.getElementById("sobre-instruccion");

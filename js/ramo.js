@@ -67,6 +67,18 @@ function dibujarRamo(ramo, semilla, nombre, estilo = ESTILO_NORMAL, opciones = {
     (p) => sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones),
     contenedor
   );
+  // Una campanita por flor, justo cuando se abre (no en la vista previa del taller)
+  if (!opciones.instantaneo && typeof sonido !== "undefined") {
+    sonido.ramo(tiemposDeFloracion(ramo, estilo));
+  }
+}
+
+// Segundos en que empieza a abrirse cada flor principal (igual que en el sketch)
+function tiemposDeFloracion(ramo, estilo) {
+  if (reducirMovimiento) return ramo.map((_, i) => 0.1 + i * 0.12);
+  return ramo.map((_, i) =>
+    (estilo.composicion === "eva" ? 0.9 + i * 0.3 : 0.3 + i * 0.25) + DURACION_TALLO * 0.75
+  );
 }
 
 function borrarRamoDibujado() {

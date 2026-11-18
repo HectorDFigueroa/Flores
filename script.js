@@ -152,9 +152,63 @@ function mostrarRamo(nombre, ramo, especial) {
     dedicatoria.textContent = "Un ramo que no florece para nadie más en el mundo";
     partes.push(dedicatoria);
   }
-  partes.push(lista);
+  partes.push(lista, crearZonaCompartir(nombre, especial));
 
   document.getElementById("resultado").replaceChildren(...partes);
+}
+
+
+// =====================================================
+//  Compartir: enlace directo al ramo (?nombre=Ana)
+// =====================================================
+
+function enlaceDelRamo(nombre) {
+  const url = new URL(window.location.href);
+  url.search = new URLSearchParams({ nombre }).toString();
+  url.hash = "";
+  return url.toString();
+}
+
+function crearZonaCompartir(nombre, especial) {
+  const zona = document.createElement("div");
+  zona.className = "compartir";
+
+  const boton = document.createElement("button");
+  boton.type = "button";
+  boton.className = "boton-secundario";
+  boton.textContent = "Compartir este ramo 🔗";
+
+  const aviso = document.createElement("p");
+  aviso.className = "aviso-compartir";
+  aviso.setAttribute("role", "status");
+
+  boton.addEventListener("click", async () => {
+    const url = enlaceDelRamo(nombre);
+    const texto = especial
+      ? `Un ramo mágico que florece solo para ${nombre} 👑🌹`
+      : `Mira el ramo mágico de ${nombre} 🌸`;
+
+    // En el celular abre el menú nativo (WhatsApp, Instagram...)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Tu Ramo Mágico", text: texto, url });
+        return;
+      } catch (error) {
+        if (error.name === "AbortError") return;   // la persona cerró el menú
+      }
+    }
+
+    // En el computador copia el enlace
+    try {
+      await navigator.clipboard.writeText(url);
+      aviso.textContent = "¡Enlace copiado! Pégalo donde quieras 🌸";
+    } catch {
+      aviso.textContent = `Copia este enlace: ${url}`;
+    }
+  });
+
+  zona.append(boton, aviso);
+  return zona;
 }
 
 
@@ -1009,7 +1063,7 @@ function limpiarMensaje() {
   input.removeAttribute("aria-invalid");
 }
 
-function revelar() {
+function revelar({ desplazar = true } = {}) {
   const nombre = input.value.trim().replace(/\s+/g, " ");
 
   if (nombre === "") {
@@ -1032,10 +1086,23 @@ function revelar() {
     mostrarRamo(nombre, ramo, false);
   }
 
-  document.getElementById("canvas-contenedor").scrollIntoView({
-    behavior: reducirMovimiento ? "auto" : "smooth",
-    block: "start",
-  });
+  // La barra de direcciones queda con el enlace de este ramo
+  history.replaceState(null, "", enlaceDelRamo(nombre));
+
+  if (desplazar) {
+    document.getElementById("canvas-contenedor").scrollIntoView({
+      behavior: reducirMovimiento ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+}
+
+// Si la página se abre con ?nombre=Ana, el ramo aparece solo
+function revelarDesdeEnlace() {
+  const nombre = new URLSearchParams(window.location.search).get("nombre");
+  if (!nombre || !nombre.trim()) return;
+  input.value = nombre.trim().slice(0, 40);
+  revelar({ desplazar: false });
 }
 
 formulario.addEventListener("submit", (e) => {
@@ -1046,3 +1113,4 @@ formulario.addEventListener("submit", (e) => {
 input.addEventListener("input", limpiarMensaje);
 
 crearCielo();
+revelarDesdeEnlace();

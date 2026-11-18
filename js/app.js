@@ -88,6 +88,7 @@ function crearBotonVideo(obtenerInfo, nombre, aviso) {
       console.error("No se pudo grabar el video", error);
       aviso.textContent = "No se pudo grabar el video en este navegador 😔";
     } finally {
+      animacionForzada = false;   // por si la grabación falló a mitad de camino
       boton.textContent = textoNormal;
       boton.disabled = false;
     }

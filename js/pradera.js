@@ -7,13 +7,19 @@
 // Al tocar una planta, se muestra su tarjeta debajo del jardín.
 
 let praderaActual = null;
+let vigilantePradera = null;
 
 function dibujarPradera(contenedor, items, alElegir) {
   borrarPradera();
   praderaActual = new p5((p) => sketchPradera(p, contenedor, items, alElegir), contenedor);
+  vigilantePradera = pausarFueraDePantalla(praderaActual, contenedor);
 }
 
 function borrarPradera() {
+  if (vigilantePradera) {
+    vigilantePradera.disconnect();
+    vigilantePradera = null;
+  }
   if (praderaActual) {
     praderaActual.remove();
     praderaActual = null;

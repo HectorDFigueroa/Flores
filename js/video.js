@@ -132,6 +132,8 @@ async function grabarVideoRamo(info, alAvanzar = () => {}) {
     if (e.data && e.data.size > 0) trozos.push(e.data);
   };
 
+  // Mientras se graba, el ramo se anima aunque no esté en pantalla
+  animacionForzada = true;
   reiniciarRamo();   // la animación empieza desde cero (y suenan las campanitas)
 
   let grabando = true;
@@ -158,6 +160,7 @@ async function grabarVideoRamo(info, alAvanzar = () => {}) {
   }
 
   grabando = false;
+  animacionForzada = false;
   await new Promise((resolve) => {
     grabadora.onstop = resolve;
     grabadora.stop();

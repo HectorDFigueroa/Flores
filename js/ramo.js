@@ -58,6 +58,20 @@ const DURACION_TALLO = 1.4;   // segundos que tarda en crecer un tallo
 
 let sketchActual = null;
 let ultimoDibujo = null;   // para poder repetir la animación (al grabar video)
+let vigilanteRamo = null;
+let animacionForzada = false;   // true mientras se graba un video: nunca se pausa
+
+// Pausa la animación cuando el lienzo sale de la pantalla (ahorra batería)
+// y la reanuda al volver. Devuelve el "vigilante" para poder apagarlo.
+function pausarFueraDePantalla(instancia, elemento) {
+  if (reducirMovimiento || !("IntersectionObserver" in window)) return null;
+  const vigilante = new IntersectionObserver(([entrada]) => {
+    if (entrada.isIntersecting || animacionForzada) instancia.loop();
+    else instancia.noLoop();
+  });
+  vigilante.observe(elemento);
+  return vigilante;
+}
 
 // opciones.instantaneo: dibuja el ramo ya florecido (para la vista previa del taller)
 function dibujarRamo(ramo, semilla, nombre, estilo = ESTILO_NORMAL, opciones = {}) {
@@ -69,6 +83,7 @@ function dibujarRamo(ramo, semilla, nombre, estilo = ESTILO_NORMAL, opciones = {
     (p) => sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones),
     contenedor
   );
+  vigilanteRamo = pausarFueraDePantalla(sketchActual, contenedor);
   // Una campanita por flor, justo cuando se abre (no en la vista previa del taller)
   if (!opciones.instantaneo && typeof sonido !== "undefined") {
     sonido.ramo(tiemposDeFloracion(ramo, estilo));
@@ -92,6 +107,10 @@ function tiemposDeFloracion(ramo, estilo) {
 }
 
 function borrarRamoDibujado() {
+  if (vigilanteRamo) {
+    vigilanteRamo.disconnect();
+    vigilanteRamo = null;
+  }
   if (sketchActual) {
     sketchActual.remove();
     sketchActual = null;

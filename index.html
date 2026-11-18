@@ -4,18 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tu Ramo Mágico</title>
-  <meta name="description" content="Escribe tu nombre y descubre el ramo de flores mágico que florece con él." />
+  <meta name="description" content="Descubre el ramo mágico que florece con tu nombre, o arma uno y envíaselo a alguien especial." />
   <meta name="theme-color" content="#120c26" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Tu Ramo Mágico 🌸" />
-  <meta property="og:description" content="Descubre las flores que florecen con tu nombre." />
+  <meta property="og:description" content="Descubre las flores que florecen con tu nombre, o envía un ramo a alguien especial." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" />
   <link rel="stylesheet" href="styles.css" />
-  <!-- p5.js: dibuja el ramo animado -->
+  <!-- p5.js: dibuja el ramo animado · qrcode-generator: códigos QR de los regalos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -31,17 +32,98 @@
 
   <main class="contenedor">
 
-    <section class="tarjeta">
+    <section class="tarjeta" id="tarjeta-principal">
       <p class="antetitulo">✦ un jardín que florece con tu nombre ✦</p>
       <h1>Tu Ramo Mágico</h1>
-      <p class="subtitulo">Escribe tu nombre y deja que las flores te encuentren</p>
 
-      <form class="formulario" id="formulario" novalidate>
-        <label for="nombreInput" class="solo-lectores">Tu nombre</label>
-        <input type="text" id="nombreInput" placeholder="Escribe tu nombre..." maxlength="40" autocomplete="given-name" />
-        <button id="boton" type="submit">Revelar mi ramo <span aria-hidden="true">✿</span></button>
-      </form>
-      <p id="mensaje" class="mensaje" role="status" aria-live="polite"></p>
+      <div class="pestanas" role="tablist" aria-label="¿Qué quieres hacer?">
+        <button type="button" role="tab" id="tab-descubrir" data-panel="descubrir" aria-controls="panel-descubrir" aria-selected="true">Descubre tu ramo</button>
+        <button type="button" role="tab" id="tab-taller" data-panel="taller" aria-controls="panel-taller" aria-selected="false" tabindex="-1">Envía un regalo ✉</button>
+      </div>
+
+      <!-- Descubre tu ramo -->
+      <div id="panel-descubrir" role="tabpanel" aria-labelledby="tab-descubrir">
+        <p class="subtitulo">Escribe tu nombre y deja que las flores te encuentren</p>
+        <form class="formulario" id="formulario" novalidate>
+          <label for="nombreInput" class="solo-lectores">Tu nombre</label>
+          <input type="text" id="nombreInput" placeholder="Escribe tu nombre..." maxlength="40" autocomplete="given-name" />
+          <button id="boton" type="submit">Revelar mi ramo <span aria-hidden="true">✿</span></button>
+        </form>
+        <p id="mensaje" class="mensaje" role="status" aria-live="polite"></p>
+      </div>
+
+      <!-- Taller de regalos -->
+      <div id="panel-taller" role="tabpanel" aria-labelledby="tab-taller" hidden>
+        <p class="subtitulo">Arma un ramo para alguien especial y envíaselo</p>
+
+        <form class="taller" id="form-taller" novalidate>
+          <div class="campos-dobles">
+            <label class="campo">
+              <span class="campo-titulo">Para</span>
+              <input type="text" id="t-para" maxlength="40" placeholder="Su nombre" autocomplete="off" />
+            </label>
+            <label class="campo">
+              <span class="campo-titulo">De <em>(opcional)</em></span>
+              <input type="text" id="t-de" maxlength="40" placeholder="Tu nombre" autocomplete="given-name" />
+            </label>
+          </div>
+
+          <fieldset class="campo">
+            <legend class="campo-titulo">Flores <em id="t-contador">0/6</em></legend>
+            <div class="fichas" id="t-flores"></div>
+            <button type="button" class="enlace-boton" id="t-sugerir">✨ Sugerir según su nombre</button>
+          </fieldset>
+
+          <div class="campos-dobles">
+            <fieldset class="campo">
+              <legend class="campo-titulo">Papel</legend>
+              <div class="muestras" id="t-papel"></div>
+            </fieldset>
+            <fieldset class="campo">
+              <legend class="campo-titulo">Lazo</legend>
+              <div class="muestras" id="t-lazo"></div>
+            </fieldset>
+          </div>
+
+          <label class="campo">
+            <span class="campo-titulo">Mensaje <em id="t-contador-mensaje">0/240</em></span>
+            <textarea id="t-mensaje" rows="3" placeholder="Escribe algo bonito..."></textarea>
+          </label>
+
+          <label class="campo">
+            <span class="campo-titulo">Abrir el <em>(opcional · queda sellado hasta esa fecha)</em></span>
+            <input type="date" id="t-fecha" />
+          </label>
+
+          <p id="t-error" class="mensaje" role="status" aria-live="polite"></p>
+
+          <div class="taller-acciones">
+            <button type="button" class="boton-secundario" id="t-otra">🎲 Otra composición</button>
+            <button type="submit">Crear regalo <span aria-hidden="true">✉</span></button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Lo que ve quien recibe un regalo -->
+    <section class="regalo" id="vista-regalo" hidden>
+      <p class="antetitulo">✦ Tu Ramo Mágico ✦</p>
+      <h1 id="regalo-titulo">Alguien te envió un ramo</h1>
+
+      <div class="sobre" id="sobre">
+        <div class="sobre-solapa"></div>
+        <div class="sobre-frente">
+          <p class="sobre-para">Para <span id="sobre-para"></span></p>
+          <p class="sobre-de" id="sobre-de"></p>
+        </div>
+        <button type="button" class="sello" id="sello" aria-label="Abrir el regalo" disabled>✿</button>
+      </div>
+
+      <p class="sobre-instruccion" id="sobre-instruccion" role="status"></p>
+
+      <div class="cuenta" id="cuenta" hidden>
+        <div class="cuenta-numeros" id="cuenta-numeros"></div>
+      </div>
     </section>
 
     <section class="escenario">
@@ -54,6 +136,10 @@
 
   <footer class="pie">Hecho con ❤️ y flores</footer>
 
-  <script src="script.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/ramo.js"></script>
+  <script src="js/imagen.js"></script>
+  <script src="js/regalo.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

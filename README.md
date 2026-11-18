@@ -6,16 +6,20 @@
 
 ## 📖 Descripción
 
-**Tu Ramo Mágico** es una aplicación web interactiva que genera un ramo de flores personalizado basado en el nombre del usuario. Solo escribe tu nombre, presiona el botón y descubre qué flores te corresponden.
+**Tu Ramo Mágico** es una aplicación web interactiva que genera un ramo de flores personalizado basado en el nombre del usuario. Escribe tu nombre y descubre qué flores te corresponden, o arma un ramo y envíaselo a alguien especial.
 
 ---
 
 ## ✨ Funcionalidades
 
-- 🌺 Generación de ramo personalizado según el nombre ingresado
-- 🎨 Ramo animado y único para cada nombre, dibujado con p5.js
-- ⚡ Interfaz simple e intuitiva
+- 🌺 Ramo animado y único para cada nombre, dibujado con p5.js
+- ✉️ **Taller de regalos:** elige flores, papel, lazo, mensaje y fecha de apertura
+- 🔒 Regalos sellados con cuenta regresiva hasta la fecha elegida
+- 🔗 Enlaces directos (`?nombre=Ana`) y códigos QR para compartir
+- 📷 Guarda cualquier ramo como imagen lista para redes sociales
 - 📱 Diseño responsive para móvil y escritorio
+
+> Todo funciona sin servidor: los datos del regalo viajan dentro del enlace.
 
 ---
 
@@ -25,7 +29,12 @@
 tu-ramo-magico/
 ├── index.html       # Estructura principal
 ├── styles.css       # Estilos y diseño visual
-└── script.js        # Lógica del ramo y dibujo con p5.js
+└── js/
+    ├── datos.js     # Flores, ramo de Eva, papeles y lazos
+    ├── ramo.js      # Lógica del ramo y dibujo con p5.js
+    ├── imagen.js    # Imagen para descargar y código QR
+    ├── regalo.js    # Taller de regalos y sobre sellado
+    └── app.js       # Pestañas, "Descubre tu ramo" y arranque
 ```
 
 ---

@@ -1,65 +1,8 @@
 // =====================================================
-//  Datos
+//  Lógica del ramo y dibujo con p5.js
 // =====================================================
 
-// Base de datos de flores (20 flores)
-// color/centro/forma/petalos se usan para dibujar cada flor en el lienzo
-const flores = [
-  { nombre: "Rosa Negra",  emoji: "🖤", color: "#6b1f3d", centro: "#2a0c18", forma: "rosa",    significado: "Misterio y elegancia que pocos comprenden" },
-  { nombre: "Lavanda",     emoji: "💜", color: "#a68ad8", centro: "#6e55a8", forma: "racimo",  significado: "Calma y espíritu soñador que sana todo" },
-  { nombre: "Cerezo",      emoji: "🌸", color: "#f6bccd", centro: "#c95f80", forma: "redonda", significado: "Belleza efímera que florece en silencio" },
-  { nombre: "Girasol",     emoji: "🌻", color: "#f2c230", centro: "#6b4318", forma: "girasol", significado: "Luz propia que ilumina a quienes te rodean" },
-  { nombre: "Loto Azul",   emoji: "🪷", color: "#7aa3e6", centro: "#f2d36b", forma: "loto",    significado: "Pureza que nace incluso de las profundidades" },
-  { nombre: "Orquídea",    emoji: "🌺", color: "#d77bd0", centro: "#8a2f86", forma: "orquidea", significado: "Rareza y gracia que no se encuentra en cualquier lugar" },
-  { nombre: "Magnolia",    emoji: "🤍", color: "#f3ebe0", centro: "#d9b8c4", forma: "tulipan", significado: "Nobleza silenciosa y corazón verdaderamente puro" },
-  { nombre: "Amapola",     emoji: "❤️", color: "#e0413a", centro: "#1e1414", forma: "redonda", petalos: 4, significado: "Pasión ardiente y recuerdos que duran eternamente" },
-  { nombre: "Jazmín",      emoji: "🌼", color: "#fff4d6", centro: "#f1c95c", forma: "punta",   petalos: 6, significado: "Dulzura sutil que permanece en la memoria" },
-  { nombre: "Violeta",     emoji: "💙", color: "#7a62d6", centro: "#f2d36b", forma: "redonda", significado: "Humildad profunda y lealtad inquebrantable" },
-  { nombre: "Gardenia",    emoji: "💮", color: "#f7f1e6", centro: "#e6d6b8", forma: "rosa",    significado: "Secretos guardados con amor y ternura infinita" },
-  { nombre: "Dalia",       emoji: "🌷", color: "#e4607a", centro: "#f4c3cd", forma: "pompon",  significado: "Elegancia sin esfuerzo, belleza que no necesita demostrar nada" },
-  { nombre: "Crisantemo",  emoji: "🏵️", color: "#e8a33d", centro: "#f8dca0", forma: "pompon",  significado: "Longevidad del alma y fortaleza ante cualquier tormenta" },
-  { nombre: "Azalea",      emoji: "🩷", color: "#f08cb4", centro: "#b8406f", forma: "redonda", significado: "Fragilidad aparente que esconde una fuerza inmensa" },
-  { nombre: "Flor de Lis", emoji: "⚜️", color: "#d9b85c", centro: "#8a6a24", forma: "tulipan", significado: "Realeza interior y dignidad que llevas en la sangre" },
-  { nombre: "Pasionaria",  emoji: "🫧", color: "#9fb4ee", centro: "#5b3f8f", forma: "girasol", petalos: 22, significado: "Intensidad de emociones que muy pocos se atreven a sentir" },
-  { nombre: "Acacia",      emoji: "💛", color: "#f5d547", centro: "#c9a227", forma: "racimo",  significado: "Amistad verdadera y amor que no pide nada a cambio" },
-  { nombre: "Begonia",     emoji: "🧡", color: "#f08a4b", centro: "#f7d06b", forma: "redonda", significado: "Imaginación desbordante y mente siempre en movimiento" },
-  { nombre: "Camelia",     emoji: "🌹", color: "#e8586e", centro: "#f6c7cf", forma: "rosa",    significado: "Admiración callada, belleza que no necesita aplausos" },
-  { nombre: "Nomeolvides", emoji: "🩵", color: "#86c9f0", centro: "#f6e27a", forma: "redonda", significado: "Memorias eternas grabadas en el corazón para siempre" },
-];
-
-// Ramo especial de Eva: flores únicas que no existen en ningún otro ramo
-const ramoEva = [
-  { nombre: "Rosa Eterna",    emoji: "🌹", color: "#c8102e", centro: "#4a0414", aura: "#ffcf7a", bordeOro: true, forma: "rosa",     significado: "Un amor que existe más allá del tiempo y el espacio" },
-  { nombre: "Loto Dorado",    emoji: "✨", color: "#e9c25a", centro: "#fff1b8", forma: "loto",     significado: "Alma única e irrepetible entre millones de almas" },
-  { nombre: "Orquídea Lunar", emoji: "🌙", color: "#d6d0f7", centro: "#7b63c4", aura: "#cfc8ff", forma: "orquidea", significado: "Gracia misteriosa que ilumina incluso la noche más oscura" },
-  { nombre: "Flor de Cerezo", emoji: "🌸", color: "#f7b8cc", centro: "#c94f76", forma: "cerezo",   significado: "Belleza tan pura que detiene el tiempo al verla" },
-];
-
-// Dónde va cada flor de Eva (mismo orden que ramoEva). Ángulos en radianes desde la vertical.
-const DISPOSICION_EVA = [
-  { angulo: 0.02,  largo: 0.5,  radio: 0.13, capa: 1 },    // Rosa Eterna, al frente y al centro
-  { angulo: -0.32, largo: 0.5,  radio: 0.11, capa: 0.5 },  // Loto Dorado
-  { angulo: 0.34,  largo: 0.52, radio: 0.11, capa: 0.5 },  // Orquídea Lunar
-  { angulo: -0.62, largo: 0.4,  radio: 0.1,  capa: 0.2 },  // Flor de Cerezo
-];
-
-// Flores que acompañan al ramo de Eva (detrás, más pequeñas)
-const ACOMPANANTES_EVA = [
-  { nombre: "Nomeolvides", angulo: -0.88, largo: 0.32 },
-  { nombre: "Jazmín",      angulo: -0.5,  largo: 0.38 },
-  { nombre: "Lavanda",     angulo: -0.14, largo: 0.55 },
-  { nombre: "Lavanda",     angulo: 0.16,  largo: 0.53 },
-  { nombre: "Jazmín",      angulo: 0.5,   largo: 0.38 },
-  { nombre: "Violeta",     angulo: 0.86,  largo: 0.32 },
-];
-
-const FLORES_POR_RAMO = 4;
 const reducirMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-
-// =====================================================
-//  Lógica: del nombre al ramo
-// =====================================================
 
 // "  HÉCTOR   figueroa " -> "hector figueroa"
 // Así mayúsculas, tildes y espacios extra no cambian el ramo.
@@ -96,125 +39,18 @@ function crearAleatorio(semilla) {
 }
 
 // Elige flores distintas mezclando la lista con la semilla del nombre
-function elegirFlores(semilla) {
+function elegirFlores(semilla, cantidad = FLORES_POR_RAMO) {
   const aleatorio = crearAleatorio(semilla);
   const mezcla = [...flores];
   for (let i = mezcla.length - 1; i > 0; i--) {
     const j = Math.floor(aleatorio() * (i + 1));
     [mezcla[i], mezcla[j]] = [mezcla[j], mezcla[i]];
   }
-  return mezcla.slice(0, FLORES_POR_RAMO);
+  return mezcla.slice(0, cantidad);
 }
 
 
-// =====================================================
-//  Mostrar el resultado (texto)
-// =====================================================
-
-// Se construye con textContent para que el nombre nunca se interprete como HTML
-function crearTarjetaFlor(flor, indice) {
-  const tarjeta = document.createElement("div");
-  tarjeta.className = "flor";
-  tarjeta.style.setProperty("--i", indice);
-  tarjeta.style.setProperty("--color-flor", flor.color);
-
-  const emoji = document.createElement("span");
-  emoji.className = "emoji";
-  emoji.setAttribute("aria-hidden", "true");
-  emoji.textContent = flor.emoji;
-
-  const texto = document.createElement("div");
-  const nombre = document.createElement("p");
-  nombre.className = "nombre-flor";
-  nombre.textContent = flor.nombre;
-  const significado = document.createElement("p");
-  significado.className = "significado";
-  significado.textContent = flor.significado;
-  texto.append(nombre, significado);
-
-  tarjeta.append(emoji, texto);
-  return tarjeta;
-}
-
-function mostrarRamo(nombre, ramo, especial) {
-  const adorno = especial ? "👑" : "✦";
-  const titulo = document.createElement("h2");
-  titulo.textContent = `${adorno} El Ramo de ${nombre} ${adorno}`;
-
-  const lista = document.createElement("div");
-  lista.className = especial ? "flores-lista flores-lista--eva" : "flores-lista";
-  ramo.forEach((flor, i) => lista.append(crearTarjetaFlor(flor, i)));
-
-  const partes = [titulo];
-  if (especial) {
-    const dedicatoria = document.createElement("p");
-    dedicatoria.className = "dedicatoria";
-    dedicatoria.textContent = "Un ramo que no florece para nadie más en el mundo";
-    partes.push(dedicatoria);
-  }
-  partes.push(lista, crearZonaCompartir(nombre, especial));
-
-  document.getElementById("resultado").replaceChildren(...partes);
-}
-
-
-// =====================================================
-//  Compartir: enlace directo al ramo (?nombre=Ana)
-// =====================================================
-
-function enlaceDelRamo(nombre) {
-  const url = new URL(window.location.href);
-  url.search = new URLSearchParams({ nombre }).toString();
-  url.hash = "";
-  return url.toString();
-}
-
-function crearZonaCompartir(nombre, especial) {
-  const zona = document.createElement("div");
-  zona.className = "compartir";
-
-  const boton = document.createElement("button");
-  boton.type = "button";
-  boton.className = "boton-secundario";
-  boton.textContent = "Compartir este ramo 🔗";
-
-  const aviso = document.createElement("p");
-  aviso.className = "aviso-compartir";
-  aviso.setAttribute("role", "status");
-
-  boton.addEventListener("click", async () => {
-    const url = enlaceDelRamo(nombre);
-    const texto = especial
-      ? `Un ramo mágico que florece solo para ${nombre} 👑🌹`
-      : `Mira el ramo mágico de ${nombre} 🌸`;
-
-    // En el celular abre el menú nativo (WhatsApp, Instagram...)
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: "Tu Ramo Mágico", text: texto, url });
-        return;
-      } catch (error) {
-        if (error.name === "AbortError") return;   // la persona cerró el menú
-      }
-    }
-
-    // En el computador copia el enlace
-    try {
-      await navigator.clipboard.writeText(url);
-      aviso.textContent = "¡Enlace copiado! Pégalo donde quieras 🌸";
-    } catch {
-      aviso.textContent = `Copia este enlace: ${url}`;
-    }
-  });
-
-  zona.append(boton, aviso);
-  return zona;
-}
-
-
-// =====================================================
-//  Dibujo del ramo con p5.js
-// =====================================================
+// ---------- control del lienzo ----------
 
 const COLOR_TALLO = "#4f7a4a";
 const COLOR_HOJA = "#5d8c55";
@@ -222,11 +58,15 @@ const DURACION_TALLO = 1.4;   // segundos que tarda en crecer un tallo
 
 let sketchActual = null;
 
-function dibujarRamo(ramo, semilla, nombre, especial) {
+// opciones.instantaneo: dibuja el ramo ya florecido (para la vista previa del taller)
+function dibujarRamo(ramo, semilla, nombre, estilo = ESTILO_NORMAL, opciones = {}) {
   const contenedor = document.getElementById("canvas-contenedor");
   borrarRamoDibujado();
   contenedor.hidden = false;
-  sketchActual = new p5((p) => sketchRamo(p, contenedor, ramo, semilla, nombre, especial), contenedor);
+  sketchActual = new p5(
+    (p) => sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones),
+    contenedor
+  );
 }
 
 function borrarRamoDibujado() {
@@ -239,7 +79,14 @@ function borrarRamoDibujado() {
   contenedor.hidden = true;
 }
 
-function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
+function obtenerLienzoRamo() {
+  return document.querySelector("#canvas-contenedor canvas");
+}
+
+
+// ---------- el sketch ----------
+
+function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
   let W = 0;
   let H = 0;
   let inicio = 0;
@@ -247,13 +94,16 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
   let ordenDibujo = [];   // de atrás hacia adelante
   let relleno = [];       // ramitas, hojas y florecitas de acompañamiento
   let particulas = [];    // luciérnagas
-  let estrellas = [];     // destellos (solo ramo especial)
-  let petalos = [];       // pétalos que caen (solo ramo especial)
-  let motas = [];         // puntitos dorados del papel (solo ramo especial)
+  let estrellas = [];     // destellos de fondo
+  let petalos = [];       // pétalos que caen
+  let motas = [];         // puntitos del papel
 
-  const NUDO = { x: 0.5, y: especial ? 0.78 : 0.8 };   // donde se juntan los tallos
-  const PROPORCION = especial ? 1.2 : 1.1;
-  const ANCHO_MAX = especial ? 520 : 480;
+  const conPapel = Boolean(estilo.papel);
+  const grande = estilo.efectos || conPapel;
+  const NUDO = { x: 0.5, y: conPapel ? 0.78 : 0.8 };   // donde se juntan los tallos
+  const PROPORCION = grande ? 1.2 : 1.1;
+  const ANCHO_MAX = grande ? 520 : 480;
+  const ADELANTO = opciones.instantaneo ? 8 : 0;      // segundos que se "adelanta" la animación
 
   // ---------- utilidades ----------
   const progreso = (t, retraso, duracion) => p.constrain((t - retraso) / duracion, 0, 1);
@@ -265,6 +115,7 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
   };
   const oscurecer = (c, k) => p.lerpColor(p.color(c), p.color(0), k);
   const aclarar = (c, k) => p.lerpColor(p.color(c), p.color(255), k);
+  const rgba = ([r, g, b], a) => `rgba(${r},${g},${b},${a})`;
 
   function medir() {
     W = Math.min(contenedor.clientWidth || 360, ANCHO_MAX);
@@ -280,7 +131,7 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
       giro: p.random(p.TWO_PI),
       fase: p.random(p.TWO_PI),
       hoja: {
-        pos: especial ? p.random(0.5, 0.68) : p.random(0.3, 0.5),
+        pos: conPapel ? p.random(0.5, 0.68) : p.random(0.3, 0.5),
         lado: p.random() < 0.5 ? -1 : 1,
         tam: p.random(0.8, 1.2),
       },
@@ -292,47 +143,55 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
     };
   }
 
+  function composicionEva() {
+    ACOMPANANTES_EVA.forEach((a, i) => {
+      tallos.push(crearTallo(flores.find((f) => f.nombre === a.nombre), {
+        angulo: a.angulo + p.random(-0.04, 0.04),
+        largo: a.largo + p.random(-0.02, 0.02),
+        radio: p.random(0.058, 0.07),
+        retraso: 0.3 + i * 0.12,
+        capa: 0,
+        principal: false,
+      }));
+    });
+    ramo.forEach((flor, i) => {
+      tallos.push(crearTallo(flor, {
+        ...DISPOSICION_EVA[i],
+        capa: 1 + DISPOSICION_EVA[i].capa,
+        retraso: 0.9 + i * 0.3,
+        principal: true,
+      }));
+    });
+  }
+
+  // De 1 a 6 flores repartidas en abanico
+  function composicionNormal() {
+    const n = ramo.length;
+    const abertura = n <= 1 ? 0 : n <= 4 ? (0.5 * (n - 1)) / 3 : 0.62;
+    ramo.forEach((flor, i) => {
+      const posicion = n === 1 ? 0.5 : i / (n - 1);
+      const cercaniaCentro = 1 - Math.abs(posicion - 0.5) * 2;
+      // con muchas flores, se alternan alturas para que no se tapen
+      const escalon = n > 4 ? (i % 2 ? -0.06 : 0.03) : 0;
+      tallos.push(crearTallo(flor, {
+        angulo: p.lerp(-abertura, abertura, posicion) + p.random(-0.08, 0.08),
+        largo: 0.42 + cercaniaCentro * 0.12 + escalon + p.random(-0.03, 0.03),
+        radio: (n > 4 ? 0.088 : 0.1) + p.random(-0.008, 0.012),
+        retraso: 0.3 + i * 0.25,
+        capa: cercaniaCentro + (escalon < 0 ? 1 : 0),
+        principal: true,
+      }));
+    });
+  }
+
   function generarComposicion() {
     tallos = [];
-
-    if (especial) {
-      ACOMPANANTES_EVA.forEach((a, i) => {
-        tallos.push(crearTallo(flores.find((f) => f.nombre === a.nombre), {
-          angulo: a.angulo + p.random(-0.04, 0.04),
-          largo: a.largo + p.random(-0.02, 0.02),
-          radio: p.random(0.058, 0.07),
-          retraso: 0.3 + i * 0.12,
-          capa: 0,
-          principal: false,
-        }));
-      });
-      ramo.forEach((flor, i) => {
-        tallos.push(crearTallo(flor, {
-          ...DISPOSICION_EVA[i],
-          capa: 1 + DISPOSICION_EVA[i].capa,
-          retraso: 0.9 + i * 0.3,
-          principal: true,
-        }));
-      });
-    } else {
-      const n = ramo.length;
-      ramo.forEach((flor, i) => {
-        const posicion = n === 1 ? 0.5 : i / (n - 1);
-        const cercaniaCentro = 1 - Math.abs(posicion - 0.5) * 2;
-        tallos.push(crearTallo(flor, {
-          angulo: p.lerp(-0.5, 0.5, posicion) + p.random(-0.08, 0.08),
-          largo: 0.42 + cercaniaCentro * 0.12 + p.random(-0.03, 0.03),
-          radio: 0.1 + p.random(-0.008, 0.012),
-          retraso: 0.3 + i * 0.25,
-          capa: cercaniaCentro,
-          principal: true,
-        }));
-      });
-    }
+    if (estilo.composicion === "eva") composicionEva();
+    else composicionNormal();
     ordenDibujo = [...tallos].sort((a, b) => a.capa - b.capa);
 
-    const cantidadRelleno = especial ? 12 : 7 + Math.floor(p.random(3));
-    const abertura = especial ? 1.0 : 0.8;
+    const cantidadRelleno = grande ? 12 : 7 + Math.floor(p.random(3));
+    const abertura = grande ? 1.0 : 0.8;
     relleno = Array.from({ length: cantidadRelleno }, () => {
       const angulo = p.random(-abertura, abertura);
       return {
@@ -351,9 +210,9 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
       };
     });
 
-    particulas = Array.from({ length: especial ? 50 : 36 }, () => nuevaParticula(true));
+    particulas = Array.from({ length: estilo.efectos ? 50 : 36 }, () => nuevaParticula(true));
 
-    if (especial) {
+    if (estilo.efectos) {
       estrellas = Array.from({ length: 18 }, () => ({
         x: p.random(0.04, 0.96),
         y: p.random(0.02, 0.55),
@@ -362,6 +221,8 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
         vel: p.random(1.5, 3),
       }));
       petalos = Array.from({ length: 16 }, () => nuevoPetalo(true));
+    }
+    if (conPapel) {
       motas = Array.from({ length: 34 }, () => {
         const y = p.random(0.67, 0.95);
         const mitadAncho = p.lerp(0.24, 0.05, (y - 0.63) / 0.35);
@@ -377,7 +238,7 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
       vel: p.random(0.0006, 0.0018),
       tam: p.random(1.5, 3.5),
       fase: p.random(p.TWO_PI),
-      rosa: especial && p.random() < 0.35,
+      rosa: estilo.efectos && p.random() < 0.35,
     };
   }
 
@@ -427,11 +288,11 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
   function brillo(x, y, radio, colorHex, alfa = 0.35) {
     if (radio <= 0 || alfa <= 0) return;
     const c = p.color(colorHex);
-    const rgb = `${p.red(c)},${p.green(c)},${p.blue(c)}`;
+    const rgb = [p.red(c), p.green(c), p.blue(c)];
     const ctx = p.drawingContext;
     const degradado = ctx.createRadialGradient(x, y, 0, x, y, radio);
-    degradado.addColorStop(0, `rgba(${rgb},${alfa})`);
-    degradado.addColorStop(1, `rgba(${rgb},0)`);
+    degradado.addColorStop(0, rgba(rgb, alfa));
+    degradado.addColorStop(1, rgba(rgb, 0));
     ctx.fillStyle = degradado;
     ctx.beginPath();
     ctx.arc(x, y, radio, 0, Math.PI * 2);
@@ -465,8 +326,8 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
     p.noFill();
     p.strokeWeight(Math.max(1, W * grosor));
 
-    // la parte de abajo del tallo (en el ramo especial la tapa el papel)
-    if (!especial) {
+    // la parte de abajo del tallo (si hay papel, queda tapada)
+    if (!conPapel) {
       const colorAbajo = p.color(COLOR_TALLO);
       colorAbajo.setAlpha(255 * progreso(t, 0, 0.5));
       p.stroke(colorAbajo);
@@ -532,11 +393,12 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
   }
 
   function dibujarLazo(t) {
-    const a = progreso(t, especial ? 2.0 : 1.6, 0.6);
+    const a = progreso(t, conPapel ? 2.0 : 1.6, 0.6);
     if (a <= 0) return;
-    const s = W * (especial ? 0.055 : 0.05) * suavizar(a);
-    const [cr, cg, cb] = especial ? [150, 82, 200] : [201, 168, 76];
-    const cola = especial ? 2.8 : 2.0;
+    const lazo = estilo.lazo;
+    const s = W * (conPapel ? 0.055 : 0.05) * suavizar(a);
+    const [cr, cg, cb] = lazo.color;
+    const cola = conPapel ? 2.8 : 2.0;
 
     p.push();
     p.translate(NUDO.x * W, NUDO.y * H);
@@ -546,9 +408,9 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
     p.triangle(0, 0, s * 0.9, s * cola, s * 0.3, s * (cola + 0.1));
     p.ellipse(-s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
     p.ellipse(s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
-    if (especial) {
+    if (lazo.borde) {
       p.noFill();
-      p.stroke(232, 196, 110, 220 * a);
+      p.stroke(...lazo.borde, 220 * a);
       p.strokeWeight(Math.max(1, s * 0.07));
       p.ellipse(-s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
       p.ellipse(s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
@@ -557,22 +419,23 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
     p.fill(cr * 0.55, cg * 0.55, cb * 0.55, 255 * a);
     p.ellipse(-s * 0.8, -s * 0.1, s * 0.8, s * 0.35);
     p.ellipse(s * 0.8, -s * 0.1, s * 0.8, s * 0.35);
-    p.fill(especial ? p.color(226, 186, 92, 255 * a) : p.color(176, 140, 52, 255 * a));
+    const centro = lazo.borde || [cr * 0.87, cg * 0.87, cb * 0.87];
+    p.fill(...centro, 255 * a);
     p.circle(0, 0, s * 0.7);
     p.pop();
   }
 
-  // Papel de regalo del ramo especial: una capa detrás de los tallos y otra delante
+  // Papel de regalo: una capa detrás de los tallos y otra delante
   function dibujarPapel(t, capa) {
     const e = suavizar(progreso(t, capa === "atras" ? 1.0 : 1.3, 0.9));
     if (e <= 0) return;
+    const papel = estilo.papel;
     const desplazamiento = (1 - e) * 0.05 * H;
     const P = (x, y) => [x * W, y * H + desplazamiento];
     p.noStroke();
 
     if (capa === "atras") {
-      const color = p.color(52, 30, 76, 235 * e);
-      p.fill(color);
+      p.fill(...papel.fondo, 235 * e);
       for (let k = 0; k <= 14; k++) {
         const [x, y] = P(p.lerp(0.18, 0.82, k / 14), 0.555);
         p.circle(x, y, W * 0.05);
@@ -587,15 +450,15 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
     const [cx, cy] = P(0.54, 0.985);
     const [dx, dy] = P(0.46, 0.985);
 
-    p.fill(104, 66, 136, 245 * e);
+    p.fill(...papel.claro, 245 * e);
     for (let k = 0; k <= 12; k++) {
       p.circle(p.lerp(ax, bx, k / 12), ay, W * 0.04);
     }
 
     const ctx = p.drawingContext;
     const degradado = ctx.createLinearGradient(0, ay, 0, cy);
-    degradado.addColorStop(0, `rgba(104,66,136,${0.97 * e})`);
-    degradado.addColorStop(1, `rgba(34,18,52,${0.99 * e})`);
+    degradado.addColorStop(0, rgba(papel.claro, 0.97 * e));
+    degradado.addColorStop(1, rgba(papel.oscuro, 0.99 * e));
     ctx.fillStyle = degradado;
     ctx.beginPath();
     ctx.moveTo(ax, ay);
@@ -605,18 +468,18 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
     ctx.closePath();
     ctx.fill();
 
-    // pliegue central y bordes dorados
+    // pliegue central y bordes
     p.stroke(255, 255, 255, 28 * e);
     p.strokeWeight(Math.max(1, W * 0.004));
     p.line((ax + bx) / 2 - W * 0.04, ay, (cx + dx) / 2, cy);
-    p.stroke(226, 190, 104, 210 * e);
+    p.stroke(...papel.borde, 210 * e);
     p.strokeWeight(Math.max(1, W * 0.003));
     p.line(ax, ay, dx, dy);
     p.line(bx, by, cx, cy);
     p.line(ax, ay, bx, by);
     p.noStroke();
 
-    p.fill(232, 200, 120, 130 * e);
+    p.fill(...papel.borde, 130 * e);
     motas.forEach((m) => {
       const [x, y] = P(m.x, m.y);
       p.circle(x, y, W * 0.006 * m.r);
@@ -624,9 +487,8 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
   }
 
   function dibujarFondoEspecial(t) {
-    // aura dorada y rosada detrás de todo el ramo
+    // aura dorada y rosada detrás del ramo (radios menores que la distancia al borde)
     const a = progreso(t, 0.6, 2);
-    // radios menores que la distancia al borde, para que el halo no se corte
     brillo(0.5 * W, 0.4 * H, 0.46 * W, "#f3c97a", 0.16 * a);
     brillo(0.5 * W, 0.34 * H, 0.32 * W, "#f7b8cc", 0.12 * a);
 
@@ -891,7 +753,7 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
     const geo = geometria(m, t);
     const r = m.radio * W * e;
     const pulso = reducirMovimiento ? 1 : 1 + 0.08 * Math.sin(t * 2 + m.fase);
-    const destacada = especial && m.principal;
+    const destacada = estilo.destellos && m.principal;
 
     brillo(geo.fx, geo.fy, r * 1.8 * pulso, m.flor.aura || m.flor.color, destacada ? 0.5 : 0.35);
 
@@ -913,7 +775,7 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
       p.noStroke();
     }
     if (destacada) {
-      // destellos que giran alrededor de cada flor de Eva
+      // destellos que giran alrededor de la flor
       p.noStroke();
       p.fill(255, 232, 170, 230 * alfa);
       for (let k = 0; k < 3; k++) {
@@ -960,21 +822,19 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
   };
 
   p.draw = function () {
-    const t = reducirMovimiento ? 100 : (p.millis() - inicio) / 1000;
+    const t = reducirMovimiento ? 100 : (p.millis() - inicio) / 1000 + ADELANTO;
     p.clear();
-    if (especial) {
-      dibujarFondoEspecial(t);
-      dibujarPapel(t, "atras");
-    }
+    if (estilo.efectos) dibujarFondoEspecial(t);
+    if (conPapel) dibujarPapel(t, "atras");
     relleno.forEach((r) => dibujarTallo(r, t, 1.2, 0.004));
     tallos.forEach((m) => dibujarTallo(m, t, DURACION_TALLO, m.principal ? 0.006 : 0.0045));
     tallos.forEach((m) => m.principal && dibujarHoja(m, t));
-    if (especial) dibujarPapel(t, "frente");
+    if (conPapel) dibujarPapel(t, "frente");
     dibujarLazo(t);
     relleno.forEach((r) => dibujarCabezaRelleno(r, t));
     ordenDibujo.forEach((m) => dibujarFlor(m, t));
     dibujarParticulas(t);
-    if (especial) dibujarPetalosCayendo(t);
+    if (estilo.efectos) dibujarPetalosCayendo(t);
   };
 
   p.windowResized = function () {
@@ -986,131 +846,3 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, especial) {
     }
   };
 }
-
-
-// =====================================================
-//  Cielo de fondo: estrellas, pétalos y jardín
-// =====================================================
-
-function crearCielo() {
-  const estrellas = document.getElementById("estrellas");
-  for (let i = 0; i < 90; i++) {
-    const s = document.createElement("span");
-    s.className = "estrella";
-    s.style.cssText =
-      `--x:${(Math.random() * 100).toFixed(2)}%;` +
-      `--y:${(Math.random() * 75).toFixed(2)}%;` +
-      `--s:${(Math.random() * 1.8 + 0.6).toFixed(2)}px;` +
-      `--o:${(Math.random() * 0.6 + 0.25).toFixed(2)};` +
-      `--d:${(Math.random() * 3 + 2).toFixed(2)}s;` +
-      `--delay:${(-Math.random() * 5).toFixed(2)}s`;
-    estrellas.append(s);
-  }
-
-  const petalos = document.getElementById("petalos");
-  const cantidad = window.innerWidth < 600 ? 9 : 16;
-  for (let i = 0; i < cantidad; i++) {
-    const s = document.createElement("span");
-    s.className = "petalo";
-    s.style.cssText =
-      `--x:${(Math.random() * 100).toFixed(2)}%;` +
-      `--s:${(Math.random() * 8 + 9).toFixed(1)}px;` +
-      `--d:${(Math.random() * 10 + 14).toFixed(1)}s;` +
-      `--delay:${(-Math.random() * 24).toFixed(1)}s;` +
-      `--deriva:${(Math.random() * 30 - 15).toFixed(1)}vw;` +
-      `--giro:${Math.round(Math.random() * 720 - 360)}deg`;
-    petalos.append(s);
-  }
-
-  // Siluetas de flores y pasto en el horizonte
-  const jardin = document.getElementById("jardin");
-  const svg = "http://www.w3.org/2000/svg";
-  for (let i = 0; i < 46; i++) {
-    const x = (i / 45) * 1440 + (Math.random() * 30 - 15);
-    const alto = 30 + Math.random() * 70;
-    const curva = Math.random() * 30 - 15;
-    const tallo = document.createElementNS(svg, "path");
-    tallo.setAttribute("d", `M${x.toFixed(1)} 140 Q${(x + curva).toFixed(1)} ${140 - alto / 2} ${(x + curva / 2).toFixed(1)} ${140 - alto}`);
-    tallo.setAttribute("class", "jardin-tallo");
-    jardin.append(tallo);
-    if (Math.random() < 0.55) {
-      const cabeza = document.createElementNS(svg, "circle");
-      cabeza.setAttribute("cx", (x + curva / 2).toFixed(1));
-      cabeza.setAttribute("cy", (140 - alto).toFixed(1));
-      cabeza.setAttribute("r", (3 + Math.random() * 5).toFixed(1));
-      cabeza.setAttribute("class", "jardin-flor");
-      jardin.append(cabeza);
-    }
-  }
-}
-
-
-// =====================================================
-//  Eventos
-// =====================================================
-
-const formulario = document.getElementById("formulario");
-const input = document.getElementById("nombreInput");
-const mensaje = document.getElementById("mensaje");
-
-function mostrarMensaje(texto) {
-  mensaje.textContent = texto;
-  input.setAttribute("aria-invalid", "true");
-}
-
-function limpiarMensaje() {
-  mensaje.textContent = "";
-  input.removeAttribute("aria-invalid");
-}
-
-function revelar({ desplazar = true } = {}) {
-  const nombre = input.value.trim().replace(/\s+/g, " ");
-
-  if (nombre === "") {
-    mostrarMensaje("¡Escribe tu nombre primero!");
-    input.focus();
-    return;
-  }
-  limpiarMensaje();
-
-  const clave = normalizarNombre(nombre);
-  const esEva = clave.split(" ")[0] === "eva";
-
-  if (esEva) {
-    dibujarRamo(ramoEva, hashTexto("eva"), nombre, true);
-    mostrarRamo(nombre, ramoEva, true);
-  } else {
-    const semilla = hashTexto(clave);
-    const ramo = elegirFlores(semilla);
-    dibujarRamo(ramo, semilla, nombre, false);
-    mostrarRamo(nombre, ramo, false);
-  }
-
-  // La barra de direcciones queda con el enlace de este ramo
-  history.replaceState(null, "", enlaceDelRamo(nombre));
-
-  if (desplazar) {
-    document.getElementById("canvas-contenedor").scrollIntoView({
-      behavior: reducirMovimiento ? "auto" : "smooth",
-      block: "start",
-    });
-  }
-}
-
-// Si la página se abre con ?nombre=Ana, el ramo aparece solo
-function revelarDesdeEnlace() {
-  const nombre = new URLSearchParams(window.location.search).get("nombre");
-  if (!nombre || !nombre.trim()) return;
-  input.value = nombre.trim().slice(0, 40);
-  revelar({ desplazar: false });
-}
-
-formulario.addEventListener("submit", (e) => {
-  e.preventDefault();
-  revelar();
-});
-
-input.addEventListener("input", limpiarMensaje);
-
-crearCielo();
-revelarDesdeEnlace();

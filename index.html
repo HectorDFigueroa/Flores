@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=11" />
   <!-- p5.js: dibuja el ramo animado · qrcode-generator: códigos QR de los regalos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -142,6 +142,10 @@
 
         <div class="jardin-cabecera">
           <p class="jardin-contador" id="jardin-contador"></p>
+          <div class="jardin-filtros jardin-vistas" id="jardin-vistas" role="group" aria-label="Cómo ver el jardín">
+            <button type="button" data-vista="pradera" aria-pressed="true">🌙 Jardín</button>
+            <button type="button" data-vista="lista" aria-pressed="false">☰ Lista</button>
+          </div>
           <div class="jardin-filtros" id="jardin-filtros" role="group" aria-label="Filtrar ramos">
             <button type="button" data-filtro="todos" aria-pressed="true">Todos</button>
             <button type="button" data-filtro="descubierto" aria-pressed="false">Míos</button>
@@ -149,6 +153,10 @@
             <button type="button" data-filtro="recibido" aria-pressed="false">Recibidos</button>
           </div>
         </div>
+
+        <!-- El jardín dibujado: cada ramo es una planta (js/pradera.js) -->
+        <div class="jardin-pradera" id="jardin-pradera"></div>
+        <div class="jardin-detalle" id="jardin-detalle" aria-live="polite"></div>
 
         <div class="jardin-lista" id="jardin-lista"></div>
 
@@ -223,16 +231,17 @@
   <!-- Activar / silenciar las campanitas -->
   <button type="button" class="boton-sonido" id="boton-sonido">🔔</button>
 
-  <script src="js/datos.js?v=9"></script>
-  <script src="js/sonido.js?v=9"></script>
-  <script src="js/ramo.js?v=9"></script>
-  <script src="js/imagen.js?v=9"></script>
-  <script src="js/video.js?v=9"></script>
-  <script src="js/regalo.js?v=9"></script>
-  <script src="js/pareja.js?v=9"></script>
-  <script src="js/jardin.js?v=9"></script>
-  <script src="js/app.js?v=9"></script>
+  <script src="js/datos.js?v=11"></script>
+  <script src="js/sonido.js?v=11"></script>
+  <script src="js/ramo.js?v=11"></script>
+  <script src="js/imagen.js?v=11"></script>
+  <script src="js/video.js?v=11"></script>
+  <script src="js/regalo.js?v=11"></script>
+  <script src="js/pareja.js?v=11"></script>
+  <script src="js/jardin.js?v=11"></script>
+  <script src="js/pradera.js?v=11"></script>
+  <script src="js/app.js?v=11"></script>
   <!-- Firebase: sesión con Google, jardín en la nube y regalos guardados -->
-  <script type="module" src="js/nube.js?v=9"></script>
+  <script type="module" src="js/nube.js?v=11"></script>
 </body>
 </html>

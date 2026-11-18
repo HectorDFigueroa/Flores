@@ -211,6 +211,24 @@ async function mostrarJardin() {
   document.getElementById("jardin-contador").textContent =
     lista.length === 1 ? "1 ramo plantado" : `${lista.length} ramos plantados`;
 
+  // Vista de jardín (pradera dibujada) o de lista (tarjetas)
+  const enPradera = vistaJardin === "pradera";
+  document.querySelectorAll("#jardin-vistas button").forEach((boton) => {
+    boton.setAttribute("aria-pressed", String(boton.dataset.vista === vistaJardin));
+  });
+  const pradera = document.getElementById("jardin-pradera");
+  const detalle = document.getElementById("jardin-detalle");
+  pradera.hidden = !enPradera;
+  detalle.hidden = !enPradera;
+  contenedor.hidden = enPradera && visibles.length > 0;
+
+  if (enPradera) {
+    dibujarPradera(pradera, visibles, mostrarDetallePlanta);
+    detalle.replaceChildren(pistaDetalle(visibles.length));
+  } else {
+    borrarPradera();
+  }
+
   if (visibles.length === 0) {
     const vacio = document.createElement("p");
     vacio.className = "jardin-vacio";
@@ -221,8 +239,32 @@ async function mostrarJardin() {
     return;
   }
 
-  contenedor.replaceChildren(...visibles.map(crearTarjetaPlanta));
+  if (!enPradera) contenedor.replaceChildren(...visibles.map(crearTarjetaPlanta));
 }
+
+function pistaDetalle(cantidad) {
+  const pista = document.createElement("p");
+  pista.className = "jardin-pista";
+  pista.textContent = cantidad ? "Toca una planta para verla 🌱" : "";
+  return pista;
+}
+
+// Al tocar una planta en la pradera, su tarjeta aparece debajo
+function mostrarDetallePlanta(item) {
+  const detalle = document.getElementById("jardin-detalle");
+  const tarjeta = crearTarjetaPlanta(item);
+  tarjeta.classList.add("planta--detalle");
+  detalle.replaceChildren(tarjeta);
+}
+
+// "pradera" o "lista" (se recuerda en este navegador)
+let vistaJardin = (() => {
+  try {
+    return localStorage.getItem("ramo-magico:vista-jardin") === "lista" ? "lista" : "pradera";
+  } catch {
+    return "pradera";
+  }
+})();
 
 // "enviado:r-Xb7kQ2pA" -> "Xb7kQ2pA" (solo regalos guardados en el servidor)
 function idServidorDe(item) {
@@ -337,6 +379,15 @@ function prepararJardin() {
   document.querySelectorAll("#jardin-filtros button").forEach((boton) => {
     boton.addEventListener("click", () => {
       filtroJardin = boton.dataset.filtro;
+      mostrarJardin();
+    });
+  });
+  document.querySelectorAll("#jardin-vistas button").forEach((boton) => {
+    boton.addEventListener("click", () => {
+      vistaJardin = boton.dataset.vista;
+      try {
+        localStorage.setItem("ramo-magico:vista-jardin", vistaJardin);
+      } catch { /* sin almacenamiento */ }
       mostrarJardin();
     });
   });

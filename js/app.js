@@ -297,6 +297,7 @@ function cambiarPestana(nombre, { enfocar = false } = {}) {
   });
 
   borrarRamoDibujado();
+  borrarPradera();
   document.getElementById("resultado").replaceChildren();
 
   const base = window.location.pathname;

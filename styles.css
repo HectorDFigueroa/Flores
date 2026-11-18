@@ -1213,6 +1213,72 @@ fieldset.campo > legend {
   gap: 14px;
 }
 
+.jardin-vistas {
+  margin-right: auto;
+}
+
+/* El jardín dibujado ocupa todo el ancho de la tarjeta, de borde a borde */
+.jardin-pradera {
+  margin: 0 -36px;
+  line-height: 0;
+}
+
+.jardin-pradera[hidden],
+.jardin-detalle[hidden],
+.jardin-lista[hidden] {
+  display: none;
+}
+
+.jardin-pradera canvas {
+  display: block;
+  touch-action: manipulation;
+}
+
+.jardin-detalle {
+  min-height: 2em;
+  margin-top: 12px;
+}
+
+.jardin-pista {
+  font-style: italic;
+  color: var(--texto-suave);
+}
+
+/* Tarjeta de la planta elegida: imagen a la izquierda, datos a la derecha */
+.planta--detalle {
+  display: flex;
+  align-items: center;
+  max-width: 440px;
+  margin: 0 auto;
+  animation: aparecer 0.4s ease both;
+}
+
+.planta--detalle .planta-enlace {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 88px 1fr;
+  column-gap: 12px;
+  align-content: center;
+  padding: 10px;
+}
+
+.planta--detalle img {
+  grid-row: 1 / span 4;
+  width: 88px;
+  margin: 0;
+  border-radius: 12px;
+}
+
+.planta--detalle .planta-enlace > :not(img) {
+  padding: 0;
+}
+
+.planta--detalle .planta-acciones {
+  position: static;
+  flex-direction: column;
+  padding: 10px 10px 10px 0;
+}
+
 .jardin-vacio {
   grid-column: 1 / -1;
   padding: 36px 16px;
@@ -1357,6 +1423,7 @@ fieldset.campo > legend {
   .campos-dobles { grid-template-columns: 1fr; gap: 0; }
 
   .jardin-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .jardin-pradera { margin: 0 -18px; }
   .jardin-cabecera { justify-content: center; }
 
   .taller-acciones { flex-direction: column-reverse; }

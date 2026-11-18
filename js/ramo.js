@@ -146,231 +146,16 @@ function generarMiniatura(ramo, semilla, estilo, ancho = 240) {
 }
 
 
-// ---------- el sketch ----------
+// =====================================================
+//  Pincel: las formas de cada flor (las usan el ramo y el jardín)
+// =====================================================
 
-function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
-  let W = 0;
-  let H = 0;
-  let inicio = 0;
-  let tallos = [];        // tallos con flor (principales y acompañantes)
-  let ordenDibujo = [];   // de atrás hacia adelante
-  let relleno = [];       // ramitas, hojas y florecitas de acompañamiento
-  let particulas = [];    // luciérnagas
-  let estrellas = [];     // destellos de fondo
-  let petalos = [];       // pétalos que caen
-  let motas = [];         // puntitos del papel
+const FORMAS_ORIENTADAS = ["tulipan", "racimo", "loto", "cerezo"];
+const FORMAS_ERGUIDAS = ["orquidea"];
 
-  const conPapel = Boolean(estilo.papel);
-  const grande = estilo.efectos || conPapel;
-  const NUDO = { x: 0.5, y: conPapel ? 0.78 : 0.8 };   // donde se juntan los tallos
-  const PROPORCION = grande ? 1.2 : 1.1;
-  const ANCHO_MAX = grande ? 520 : 480;
-  const ADELANTO = opciones.instantaneo ? 8 : 0;      // segundos que se "adelanta" la animación
-
-  // ---------- utilidades ----------
-  const progreso = (t, retraso, duracion) => p.constrain((t - retraso) / duracion, 0, 1);
-  const suavizar = (x) => 1 - Math.pow(1 - x, 3);
-  const rebote = (x) => {
-    if (x <= 0) return 0;
-    const c1 = 1.70158;
-    return 1 + (c1 + 1) * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
-  };
+function crearPincel(p) {
   const oscurecer = (c, k) => p.lerpColor(p.color(c), p.color(0), k);
   const aclarar = (c, k) => p.lerpColor(p.color(c), p.color(255), k);
-  const rgba = ([r, g, b], a) => `rgba(${r},${g},${b},${a})`;
-
-  function medir() {
-    W = opciones.ancho || Math.min(contenedor.clientWidth || 360, ANCHO_MAX);
-    H = Math.round(W * PROPORCION);
-  }
-
-  // ---------- composición (se genera una vez con la semilla) ----------
-  function crearTallo(flor, { angulo, largo, radio, retraso, capa, principal }) {
-    return {
-      flor, angulo, largo, radio, retraso, capa, principal,
-      curva: p.random(-0.06, 0.06),
-      abajo: p.random(-0.03, 0.03),
-      giro: p.random(p.TWO_PI),
-      fase: p.random(p.TWO_PI),
-      hoja: {
-        pos: conPapel ? p.random(0.5, 0.68) : p.random(0.3, 0.5),
-        lado: p.random() < 0.5 ? -1 : 1,
-        tam: p.random(0.8, 1.2),
-      },
-      racimo: Array.from({ length: 16 }, (_, k) => ({
-        t: k / 15,
-        dx: p.random(-1, 1),
-        r: p.random(0.75, 1.1),
-      })),
-    };
-  }
-
-  function composicionEva() {
-    ACOMPANANTES_EVA.forEach((a, i) => {
-      tallos.push(crearTallo(flores.find((f) => f.nombre === a.nombre), {
-        angulo: a.angulo + p.random(-0.04, 0.04),
-        largo: a.largo + p.random(-0.02, 0.02),
-        radio: p.random(0.058, 0.07),
-        retraso: 0.3 + i * 0.12,
-        capa: 0,
-        principal: false,
-      }));
-    });
-    ramo.forEach((flor, i) => {
-      tallos.push(crearTallo(flor, {
-        ...DISPOSICION_EVA[i],
-        capa: 1 + DISPOSICION_EVA[i].capa,
-        retraso: 0.9 + i * 0.3,
-        principal: true,
-      }));
-    });
-  }
-
-  // De 1 a 6 flores repartidas en abanico
-  function composicionNormal() {
-    const n = ramo.length;
-    const abertura = n <= 1 ? 0 : n <= 4 ? (0.5 * (n - 1)) / 3 : 0.62;
-    ramo.forEach((flor, i) => {
-      const posicion = n === 1 ? 0.5 : i / (n - 1);
-      const cercaniaCentro = 1 - Math.abs(posicion - 0.5) * 2;
-      // con muchas flores, se alternan alturas para que no se tapen
-      const escalon = n > 4 ? (i % 2 ? -0.06 : 0.03) : 0;
-      tallos.push(crearTallo(flor, {
-        angulo: p.lerp(-abertura, abertura, posicion) + p.random(-0.08, 0.08),
-        largo: 0.42 + cercaniaCentro * 0.12 + escalon + p.random(-0.03, 0.03),
-        radio: (n > 4 ? 0.088 : 0.1) + p.random(-0.008, 0.012),
-        retraso: 0.3 + i * 0.25,
-        capa: cercaniaCentro + (escalon < 0 ? 1 : 0),
-        principal: true,
-      }));
-    });
-  }
-
-  function generarComposicion() {
-    tallos = [];
-    if (estilo.composicion === "eva") composicionEva();
-    else composicionNormal();
-    ordenDibujo = [...tallos].sort((a, b) => a.capa - b.capa);
-
-    const cantidadRelleno = grande ? 12 : 7 + Math.floor(p.random(3));
-    const abertura = grande ? 1.0 : 0.8;
-    relleno = Array.from({ length: cantidadRelleno }, () => {
-      const angulo = p.random(-abertura, abertura);
-      return {
-        tipo: p.random() < 0.4 ? "hoja" : "nube",
-        angulo,
-        largo: p.random(0.28, 0.48 - Math.abs(angulo) * 0.12),
-        curva: p.random(-0.08, 0.08),
-        abajo: p.random(-0.03, 0.03),
-        retraso: p.random(0.1, 0.9),
-        fase: p.random(p.TWO_PI),
-        puntos: Array.from({ length: 6 + Math.floor(p.random(5)) }, () => ({
-          dx: p.random(-1, 1),
-          dy: p.random(-1, 1),
-          r: p.random(0.4, 1),
-        })),
-      };
-    });
-
-    particulas = Array.from({ length: estilo.efectos ? 50 : 36 }, () => nuevaParticula(true));
-
-    if (estilo.efectos) {
-      estrellas = Array.from({ length: 18 }, () => ({
-        x: p.random(0.04, 0.96),
-        y: p.random(0.02, 0.55),
-        tam: p.random(0.007, 0.016),
-        fase: p.random(p.TWO_PI),
-        vel: p.random(1.5, 3),
-      }));
-      petalos = Array.from({ length: 16 }, () => nuevoPetalo(true));
-    }
-    if (conPapel) {
-      motas = Array.from({ length: 34 }, () => {
-        const y = p.random(0.67, 0.95);
-        const mitadAncho = p.lerp(0.24, 0.05, (y - 0.63) / 0.35);
-        return { x: 0.5 + p.random(-1, 1) * mitadAncho * 0.85, y, r: p.random(0.6, 1.4) };
-      });
-    }
-  }
-
-  function nuevaParticula(cualquierAltura) {
-    return {
-      x: p.random(),
-      y: cualquierAltura ? p.random() : 1.02,
-      vel: p.random(0.0006, 0.0018),
-      tam: p.random(1.5, 3.5),
-      fase: p.random(p.TWO_PI),
-      rosa: estilo.efectos && p.random() < 0.35,
-    };
-  }
-
-  function nuevoPetalo(cualquierAltura) {
-    return {
-      x: p.random(0.05, 0.95),
-      y: cualquierAltura ? p.random(-0.1, 1) : -0.05,
-      vel: p.random(0.0008, 0.0016),
-      giro: p.random(p.TWO_PI),
-      vgiro: p.random(-0.03, 0.03),
-      tam: p.random(0.014, 0.022),
-      fase: p.random(p.TWO_PI),
-    };
-  }
-
-  // ---------- geometría de un tallo en el instante t ----------
-  function geometria(item, t) {
-    const bx = NUDO.x * W;
-    const by = NUDO.y * H;
-    const balanceo = reducirMovimiento ? 0 : Math.sin(t * 1.1 + item.fase) * 0.025;
-    const a = item.angulo + balanceo;
-    const L = item.largo * H;
-
-    // punta del tallo (donde va la flor)
-    const fx = bx + Math.sin(a) * L;
-    const fy = by - Math.cos(a) * L;
-    // punto de control de la curva
-    const cx = (bx + fx) / 2 + Math.cos(a) * item.curva * H;
-    const cy = (by + fy) / 2 + Math.sin(a) * item.curva * H;
-    // extremo inferior: los tallos se cruzan en el nudo y se abren abajo
-    const ix = bx - Math.sin(item.angulo) * 0.14 * H + item.abajo * W;
-    const iy = by + Math.cos(item.angulo) * 0.14 * H;
-
-    return { a, bx, by, cx, cy, fx, fy, ix, iy };
-  }
-
-  function puntoEnTallo(geo, g) {
-    const u = 1 - g;
-    return [
-      u * u * geo.bx + 2 * u * g * geo.cx + g * g * geo.fx,
-      u * u * geo.by + 2 * u * g * geo.cy + g * g * geo.fy,
-    ];
-  }
-
-  // ---------- piezas de dibujo ----------
-  // Halo de luz suave
-  function brillo(x, y, radio, colorHex, alfa = 0.35) {
-    if (radio <= 0 || alfa <= 0) return;
-    const c = p.color(colorHex);
-    const rgb = [p.red(c), p.green(c), p.blue(c)];
-    const ctx = p.drawingContext;
-    const degradado = ctx.createRadialGradient(x, y, 0, x, y, radio);
-    degradado.addColorStop(0, rgba(rgb, alfa));
-    degradado.addColorStop(1, rgba(rgb, 0));
-    ctx.fillStyle = degradado;
-    ctx.beginPath();
-    ctx.arc(x, y, radio, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // Destello de cuatro puntas
-  function estrella4(x, y, s) {
-    p.beginShape();
-    for (let k = 0; k < 8; k++) {
-      const ang = (k * p.PI) / 4 - p.HALF_PI;
-      const d = k % 2 === 0 ? s : s * 0.22;
-      p.vertex(x + Math.cos(ang) * d, y + Math.sin(ang) * d);
-    }
-    p.endShape(p.CLOSE);
-  }
 
   // Pétalo puntiagudo que nace en (0,0) y apunta hacia arriba
   function petaloPunta(largo, ancho) {
@@ -379,212 +164,6 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
     p.bezierVertex(ancho, -largo * 0.25, ancho * 0.7, -largo * 0.8, 0, -largo);
     p.bezierVertex(-ancho * 0.7, -largo * 0.8, -ancho, -largo * 0.25, 0, 0);
     p.endShape(p.CLOSE);
-  }
-
-  function dibujarTallo(item, t, duracion, grosor) {
-    const geo = geometria(item, t);
-    const g = suavizar(progreso(t, item.retraso, duracion));
-
-    p.noFill();
-    p.strokeWeight(Math.max(1, W * grosor));
-
-    // la parte de abajo del tallo (si hay papel, queda tapada)
-    if (!conPapel) {
-      const colorAbajo = p.color(COLOR_TALLO);
-      colorAbajo.setAlpha(255 * progreso(t, 0, 0.5));
-      p.stroke(colorAbajo);
-      p.line(geo.bx, geo.by, geo.ix, geo.iy);
-    }
-
-    if (g <= 0) return;
-    p.stroke(COLOR_TALLO);
-    p.beginShape();
-    const pasos = 24;
-    for (let k = 0; k <= pasos; k++) {
-      const [x, y] = puntoEnTallo(geo, (g * k) / pasos);
-      p.vertex(x, y);
-    }
-    p.endShape();
-  }
-
-  function formaHoja(x, y, direccion, tam) {
-    if (tam <= 0) return;
-    p.push();
-    p.translate(x, y);
-    p.rotate(direccion);
-    p.noStroke();
-    p.fill(COLOR_HOJA);
-    p.beginShape();
-    p.vertex(0, 0);
-    p.bezierVertex(tam * 0.3, -tam * 0.35, tam * 0.8, -tam * 0.3, tam, 0);
-    p.bezierVertex(tam * 0.8, tam * 0.3, tam * 0.3, tam * 0.35, 0, 0);
-    p.endShape(p.CLOSE);
-    p.stroke(oscurecer(COLOR_HOJA, 0.3));
-    p.strokeWeight(1);
-    p.line(0, 0, tam * 0.85, 0);
-    p.pop();
-  }
-
-  function dibujarHoja(m, t) {
-    const g = suavizar(progreso(t, m.retraso, DURACION_TALLO));
-    if (g < m.hoja.pos) return;
-    const crecimiento = p.constrain((g - m.hoja.pos) / 0.25, 0, 1);
-    const geo = geometria(m, t);
-    const [x, y] = puntoEnTallo(geo, m.hoja.pos);
-    const [x2, y2] = puntoEnTallo(geo, m.hoja.pos + 0.02);
-    const direccion = Math.atan2(y2 - y, x2 - x) + m.hoja.lado * 0.7;
-    formaHoja(x, y, direccion, W * 0.07 * m.hoja.tam * crecimiento);
-  }
-
-  function dibujarCabezaRelleno(r, t) {
-    const e = rebote(progreso(t, r.retraso + 0.9, 0.7));
-    if (e <= 0) return;
-    const geo = geometria(r, t);
-
-    if (r.tipo === "hoja") {
-      formaHoja(geo.fx, geo.fy, geo.a - Math.PI / 2, W * 0.08 * e);
-      return;
-    }
-    // "nube": florecitas blancas tipo gypsophila
-    const radio = W * 0.035;
-    p.noStroke();
-    p.fill(255, 248, 235, 220);
-    r.puntos.forEach((pt) => {
-      p.circle(geo.fx + pt.dx * radio, geo.fy + pt.dy * radio, W * 0.014 * pt.r * e);
-    });
-  }
-
-  function dibujarLazo(t) {
-    const a = progreso(t, conPapel ? 2.0 : 1.6, 0.6);
-    if (a <= 0) return;
-    const lazo = estilo.lazo;
-    const s = W * (conPapel ? 0.055 : 0.05) * suavizar(a);
-    const [cr, cg, cb] = lazo.color;
-    const cola = conPapel ? 2.8 : 2.0;
-
-    p.push();
-    p.translate(NUDO.x * W, NUDO.y * H);
-    p.noStroke();
-    p.fill(cr, cg, cb, 255 * a);
-    p.triangle(0, 0, -s * 0.9, s * cola, -s * 0.3, s * (cola + 0.1));
-    p.triangle(0, 0, s * 0.9, s * cola, s * 0.3, s * (cola + 0.1));
-    p.ellipse(-s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
-    p.ellipse(s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
-    if (lazo.borde) {
-      p.noFill();
-      p.stroke(...lazo.borde, 220 * a);
-      p.strokeWeight(Math.max(1, s * 0.07));
-      p.ellipse(-s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
-      p.ellipse(s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
-      p.noStroke();
-    }
-    p.fill(cr * 0.55, cg * 0.55, cb * 0.55, 255 * a);
-    p.ellipse(-s * 0.8, -s * 0.1, s * 0.8, s * 0.35);
-    p.ellipse(s * 0.8, -s * 0.1, s * 0.8, s * 0.35);
-    const centro = lazo.borde || [cr * 0.87, cg * 0.87, cb * 0.87];
-    p.fill(...centro, 255 * a);
-    p.circle(0, 0, s * 0.7);
-    p.pop();
-  }
-
-  // Papel de regalo: una capa detrás de los tallos y otra delante
-  function dibujarPapel(t, capa) {
-    const e = suavizar(progreso(t, capa === "atras" ? 1.0 : 1.3, 0.9));
-    if (e <= 0) return;
-    const papel = estilo.papel;
-    const desplazamiento = (1 - e) * 0.05 * H;
-    const P = (x, y) => [x * W, y * H + desplazamiento];
-    p.noStroke();
-
-    if (capa === "atras") {
-      p.fill(...papel.fondo, 235 * e);
-      for (let k = 0; k <= 14; k++) {
-        const [x, y] = P(p.lerp(0.18, 0.82, k / 14), 0.555);
-        p.circle(x, y, W * 0.05);
-      }
-      p.quad(...P(0.18, 0.555), ...P(0.82, 0.555), ...P(0.57, 0.97), ...P(0.43, 0.97));
-      return;
-    }
-
-    // Capa delantera: festón de encaje + papel con degradado
-    const [ax, ay] = P(0.26, 0.63);
-    const [bx, by] = P(0.74, 0.63);
-    const [cx, cy] = P(0.54, 0.985);
-    const [dx, dy] = P(0.46, 0.985);
-
-    p.fill(...papel.claro, 245 * e);
-    for (let k = 0; k <= 12; k++) {
-      p.circle(p.lerp(ax, bx, k / 12), ay, W * 0.04);
-    }
-
-    const ctx = p.drawingContext;
-    const degradado = ctx.createLinearGradient(0, ay, 0, cy);
-    degradado.addColorStop(0, rgba(papel.claro, 0.97 * e));
-    degradado.addColorStop(1, rgba(papel.oscuro, 0.99 * e));
-    ctx.fillStyle = degradado;
-    ctx.beginPath();
-    ctx.moveTo(ax, ay);
-    ctx.lineTo(bx, by);
-    ctx.lineTo(cx, cy);
-    ctx.lineTo(dx, dy);
-    ctx.closePath();
-    ctx.fill();
-
-    // pliegue central y bordes
-    p.stroke(255, 255, 255, 28 * e);
-    p.strokeWeight(Math.max(1, W * 0.004));
-    p.line((ax + bx) / 2 - W * 0.04, ay, (cx + dx) / 2, cy);
-    p.stroke(...papel.borde, 210 * e);
-    p.strokeWeight(Math.max(1, W * 0.003));
-    p.line(ax, ay, dx, dy);
-    p.line(bx, by, cx, cy);
-    p.line(ax, ay, bx, by);
-    p.noStroke();
-
-    p.fill(...papel.borde, 130 * e);
-    motas.forEach((m) => {
-      const [x, y] = P(m.x, m.y);
-      p.circle(x, y, W * 0.006 * m.r);
-    });
-  }
-
-  function dibujarFondoEspecial(t) {
-    // aura dorada y rosada detrás del ramo (radios menores que la distancia al borde)
-    const a = progreso(t, 0.6, 2);
-    brillo(0.5 * W, 0.4 * H, 0.46 * W, "#f3c97a", 0.16 * a);
-    brillo(0.5 * W, 0.34 * H, 0.32 * W, "#f7b8cc", 0.12 * a);
-
-    const aparicion = progreso(t, 0.5, 1.5);
-    p.noStroke();
-    estrellas.forEach((s) => {
-      const titila = reducirMovimiento ? 0.8 : 0.55 + 0.45 * Math.sin(t * s.vel + s.fase);
-      p.fill(255, 236, 190, 230 * titila * aparicion);
-      estrella4(s.x * W, s.y * H, s.tam * W * (0.6 + 0.4 * titila));
-    });
-  }
-
-  function dibujarPetalosCayendo(t) {
-    const a = progreso(t, 2.6, 1.5);
-    if (a <= 0) return;
-    p.noStroke();
-    petalos.forEach((q) => {
-      if (!reducirMovimiento) {
-        q.y += q.vel;
-        q.giro += q.vgiro;
-        if (q.y > 1.05) Object.assign(q, nuevoPetalo(false));
-      }
-      const x = (q.x + Math.sin(t * 0.8 + q.fase) * 0.03) * W;
-      const s = q.tam * W;
-      p.push();
-      p.translate(x, q.y * H);
-      p.rotate(q.giro);
-      p.scale(Math.max(0.2, Math.abs(Math.cos(t * 1.5 + q.fase))), 1);
-      p.fill(247, 184, 204, 210 * a);
-      p.ellipse(0, 0, s, s * 0.7);
-      p.fill(255, 226, 236, 160 * a);
-      p.ellipse(-s * 0.12, -s * 0.08, s * 0.45, s * 0.3);
-      p.pop();
-    });
   }
 
   // Cada forma dibuja una flor centrada en (0,0) con radio r
@@ -806,8 +385,441 @@ function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
     },
   };
 
-  const FORMAS_ORIENTADAS = ["tulipan", "racimo", "loto", "cerezo"];
-  const FORMAS_ERGUIDAS = ["orquidea"];
+
+  return { FORMAS, petaloPunta, oscurecer, aclarar };
+}
+
+
+// ---------- el sketch del ramo ----------
+
+function sketchRamo(p, contenedor, ramo, semilla, nombre, estilo, opciones) {
+  let W = 0;
+  let H = 0;
+  let inicio = 0;
+  let tallos = [];        // tallos con flor (principales y acompañantes)
+  let ordenDibujo = [];   // de atrás hacia adelante
+  let relleno = [];       // ramitas, hojas y florecitas de acompañamiento
+  let particulas = [];    // luciérnagas
+  let estrellas = [];     // destellos de fondo
+  let petalos = [];       // pétalos que caen
+  let motas = [];         // puntitos del papel
+
+  const conPapel = Boolean(estilo.papel);
+  const grande = estilo.efectos || conPapel;
+  const NUDO = { x: 0.5, y: conPapel ? 0.78 : 0.8 };   // donde se juntan los tallos
+  const PROPORCION = grande ? 1.2 : 1.1;
+  const ANCHO_MAX = grande ? 520 : 480;
+  const ADELANTO = opciones.instantaneo ? 8 : 0;      // segundos que se "adelanta" la animación
+
+  // ---------- utilidades ----------
+  const progreso = (t, retraso, duracion) => p.constrain((t - retraso) / duracion, 0, 1);
+  const suavizar = (x) => 1 - Math.pow(1 - x, 3);
+  const rebote = (x) => {
+    if (x <= 0) return 0;
+    const c1 = 1.70158;
+    return 1 + (c1 + 1) * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+  };
+  const { FORMAS, petaloPunta, oscurecer, aclarar } = crearPincel(p);
+  const rgba = ([r, g, b], a) => `rgba(${r},${g},${b},${a})`;
+
+  function medir() {
+    W = opciones.ancho || Math.min(contenedor.clientWidth || 360, ANCHO_MAX);
+    H = Math.round(W * PROPORCION);
+  }
+
+  // ---------- composición (se genera una vez con la semilla) ----------
+  function crearTallo(flor, { angulo, largo, radio, retraso, capa, principal }) {
+    return {
+      flor, angulo, largo, radio, retraso, capa, principal,
+      curva: p.random(-0.06, 0.06),
+      abajo: p.random(-0.03, 0.03),
+      giro: p.random(p.TWO_PI),
+      fase: p.random(p.TWO_PI),
+      hoja: {
+        pos: conPapel ? p.random(0.5, 0.68) : p.random(0.3, 0.5),
+        lado: p.random() < 0.5 ? -1 : 1,
+        tam: p.random(0.8, 1.2),
+      },
+      racimo: Array.from({ length: 16 }, (_, k) => ({
+        t: k / 15,
+        dx: p.random(-1, 1),
+        r: p.random(0.75, 1.1),
+      })),
+    };
+  }
+
+  function composicionEva() {
+    ACOMPANANTES_EVA.forEach((a, i) => {
+      tallos.push(crearTallo(flores.find((f) => f.nombre === a.nombre), {
+        angulo: a.angulo + p.random(-0.04, 0.04),
+        largo: a.largo + p.random(-0.02, 0.02),
+        radio: p.random(0.058, 0.07),
+        retraso: 0.3 + i * 0.12,
+        capa: 0,
+        principal: false,
+      }));
+    });
+    ramo.forEach((flor, i) => {
+      tallos.push(crearTallo(flor, {
+        ...DISPOSICION_EVA[i],
+        capa: 1 + DISPOSICION_EVA[i].capa,
+        retraso: 0.9 + i * 0.3,
+        principal: true,
+      }));
+    });
+  }
+
+  // De 1 a 6 flores repartidas en abanico
+  function composicionNormal() {
+    const n = ramo.length;
+    const abertura = n <= 1 ? 0 : n <= 4 ? (0.5 * (n - 1)) / 3 : 0.62;
+    ramo.forEach((flor, i) => {
+      const posicion = n === 1 ? 0.5 : i / (n - 1);
+      const cercaniaCentro = 1 - Math.abs(posicion - 0.5) * 2;
+      // con muchas flores, se alternan alturas para que no se tapen
+      const escalon = n > 4 ? (i % 2 ? -0.06 : 0.03) : 0;
+      tallos.push(crearTallo(flor, {
+        angulo: p.lerp(-abertura, abertura, posicion) + p.random(-0.08, 0.08),
+        largo: 0.42 + cercaniaCentro * 0.12 + escalon + p.random(-0.03, 0.03),
+        radio: (n > 4 ? 0.088 : 0.1) + p.random(-0.008, 0.012),
+        retraso: 0.3 + i * 0.25,
+        capa: cercaniaCentro + (escalon < 0 ? 1 : 0),
+        principal: true,
+      }));
+    });
+  }
+
+  function generarComposicion() {
+    tallos = [];
+    if (estilo.composicion === "eva") composicionEva();
+    else composicionNormal();
+    ordenDibujo = [...tallos].sort((a, b) => a.capa - b.capa);
+
+    const cantidadRelleno = grande ? 12 : 7 + Math.floor(p.random(3));
+    const abertura = grande ? 1.0 : 0.8;
+    relleno = Array.from({ length: cantidadRelleno }, () => {
+      const angulo = p.random(-abertura, abertura);
+      return {
+        tipo: p.random() < 0.4 ? "hoja" : "nube",
+        angulo,
+        largo: p.random(0.28, 0.48 - Math.abs(angulo) * 0.12),
+        curva: p.random(-0.08, 0.08),
+        abajo: p.random(-0.03, 0.03),
+        retraso: p.random(0.1, 0.9),
+        fase: p.random(p.TWO_PI),
+        puntos: Array.from({ length: 6 + Math.floor(p.random(5)) }, () => ({
+          dx: p.random(-1, 1),
+          dy: p.random(-1, 1),
+          r: p.random(0.4, 1),
+        })),
+      };
+    });
+
+    particulas = Array.from({ length: estilo.efectos ? 50 : 36 }, () => nuevaParticula(true));
+
+    if (estilo.efectos) {
+      estrellas = Array.from({ length: 18 }, () => ({
+        x: p.random(0.04, 0.96),
+        y: p.random(0.02, 0.55),
+        tam: p.random(0.007, 0.016),
+        fase: p.random(p.TWO_PI),
+        vel: p.random(1.5, 3),
+      }));
+      petalos = Array.from({ length: 16 }, () => nuevoPetalo(true));
+    }
+    if (conPapel) {
+      motas = Array.from({ length: 34 }, () => {
+        const y = p.random(0.67, 0.95);
+        const mitadAncho = p.lerp(0.24, 0.05, (y - 0.63) / 0.35);
+        return { x: 0.5 + p.random(-1, 1) * mitadAncho * 0.85, y, r: p.random(0.6, 1.4) };
+      });
+    }
+  }
+
+  function nuevaParticula(cualquierAltura) {
+    return {
+      x: p.random(),
+      y: cualquierAltura ? p.random() : 1.02,
+      vel: p.random(0.0006, 0.0018),
+      tam: p.random(1.5, 3.5),
+      fase: p.random(p.TWO_PI),
+      rosa: estilo.efectos && p.random() < 0.35,
+    };
+  }
+
+  function nuevoPetalo(cualquierAltura) {
+    return {
+      x: p.random(0.05, 0.95),
+      y: cualquierAltura ? p.random(-0.1, 1) : -0.05,
+      vel: p.random(0.0008, 0.0016),
+      giro: p.random(p.TWO_PI),
+      vgiro: p.random(-0.03, 0.03),
+      tam: p.random(0.014, 0.022),
+      fase: p.random(p.TWO_PI),
+    };
+  }
+
+  // ---------- geometría de un tallo en el instante t ----------
+  function geometria(item, t) {
+    const bx = NUDO.x * W;
+    const by = NUDO.y * H;
+    const balanceo = reducirMovimiento ? 0 : Math.sin(t * 1.1 + item.fase) * 0.025;
+    const a = item.angulo + balanceo;
+    const L = item.largo * H;
+
+    // punta del tallo (donde va la flor)
+    const fx = bx + Math.sin(a) * L;
+    const fy = by - Math.cos(a) * L;
+    // punto de control de la curva
+    const cx = (bx + fx) / 2 + Math.cos(a) * item.curva * H;
+    const cy = (by + fy) / 2 + Math.sin(a) * item.curva * H;
+    // extremo inferior: los tallos se cruzan en el nudo y se abren abajo
+    const ix = bx - Math.sin(item.angulo) * 0.14 * H + item.abajo * W;
+    const iy = by + Math.cos(item.angulo) * 0.14 * H;
+
+    return { a, bx, by, cx, cy, fx, fy, ix, iy };
+  }
+
+  function puntoEnTallo(geo, g) {
+    const u = 1 - g;
+    return [
+      u * u * geo.bx + 2 * u * g * geo.cx + g * g * geo.fx,
+      u * u * geo.by + 2 * u * g * geo.cy + g * g * geo.fy,
+    ];
+  }
+
+  // ---------- piezas de dibujo ----------
+  // Halo de luz suave
+  function brillo(x, y, radio, colorHex, alfa = 0.35) {
+    if (radio <= 0 || alfa <= 0) return;
+    const c = p.color(colorHex);
+    const rgb = [p.red(c), p.green(c), p.blue(c)];
+    const ctx = p.drawingContext;
+    const degradado = ctx.createRadialGradient(x, y, 0, x, y, radio);
+    degradado.addColorStop(0, rgba(rgb, alfa));
+    degradado.addColorStop(1, rgba(rgb, 0));
+    ctx.fillStyle = degradado;
+    ctx.beginPath();
+    ctx.arc(x, y, radio, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Destello de cuatro puntas
+  function estrella4(x, y, s) {
+    p.beginShape();
+    for (let k = 0; k < 8; k++) {
+      const ang = (k * p.PI) / 4 - p.HALF_PI;
+      const d = k % 2 === 0 ? s : s * 0.22;
+      p.vertex(x + Math.cos(ang) * d, y + Math.sin(ang) * d);
+    }
+    p.endShape(p.CLOSE);
+  }
+
+  function dibujarTallo(item, t, duracion, grosor) {
+    const geo = geometria(item, t);
+    const g = suavizar(progreso(t, item.retraso, duracion));
+
+    p.noFill();
+    p.strokeWeight(Math.max(1, W * grosor));
+
+    // la parte de abajo del tallo (si hay papel, queda tapada)
+    if (!conPapel) {
+      const colorAbajo = p.color(COLOR_TALLO);
+      colorAbajo.setAlpha(255 * progreso(t, 0, 0.5));
+      p.stroke(colorAbajo);
+      p.line(geo.bx, geo.by, geo.ix, geo.iy);
+    }
+
+    if (g <= 0) return;
+    p.stroke(COLOR_TALLO);
+    p.beginShape();
+    const pasos = 24;
+    for (let k = 0; k <= pasos; k++) {
+      const [x, y] = puntoEnTallo(geo, (g * k) / pasos);
+      p.vertex(x, y);
+    }
+    p.endShape();
+  }
+
+  function formaHoja(x, y, direccion, tam) {
+    if (tam <= 0) return;
+    p.push();
+    p.translate(x, y);
+    p.rotate(direccion);
+    p.noStroke();
+    p.fill(COLOR_HOJA);
+    p.beginShape();
+    p.vertex(0, 0);
+    p.bezierVertex(tam * 0.3, -tam * 0.35, tam * 0.8, -tam * 0.3, tam, 0);
+    p.bezierVertex(tam * 0.8, tam * 0.3, tam * 0.3, tam * 0.35, 0, 0);
+    p.endShape(p.CLOSE);
+    p.stroke(oscurecer(COLOR_HOJA, 0.3));
+    p.strokeWeight(1);
+    p.line(0, 0, tam * 0.85, 0);
+    p.pop();
+  }
+
+  function dibujarHoja(m, t) {
+    const g = suavizar(progreso(t, m.retraso, DURACION_TALLO));
+    if (g < m.hoja.pos) return;
+    const crecimiento = p.constrain((g - m.hoja.pos) / 0.25, 0, 1);
+    const geo = geometria(m, t);
+    const [x, y] = puntoEnTallo(geo, m.hoja.pos);
+    const [x2, y2] = puntoEnTallo(geo, m.hoja.pos + 0.02);
+    const direccion = Math.atan2(y2 - y, x2 - x) + m.hoja.lado * 0.7;
+    formaHoja(x, y, direccion, W * 0.07 * m.hoja.tam * crecimiento);
+  }
+
+  function dibujarCabezaRelleno(r, t) {
+    const e = rebote(progreso(t, r.retraso + 0.9, 0.7));
+    if (e <= 0) return;
+    const geo = geometria(r, t);
+
+    if (r.tipo === "hoja") {
+      formaHoja(geo.fx, geo.fy, geo.a - Math.PI / 2, W * 0.08 * e);
+      return;
+    }
+    // "nube": florecitas blancas tipo gypsophila
+    const radio = W * 0.035;
+    p.noStroke();
+    p.fill(255, 248, 235, 220);
+    r.puntos.forEach((pt) => {
+      p.circle(geo.fx + pt.dx * radio, geo.fy + pt.dy * radio, W * 0.014 * pt.r * e);
+    });
+  }
+
+  function dibujarLazo(t) {
+    const a = progreso(t, conPapel ? 2.0 : 1.6, 0.6);
+    if (a <= 0) return;
+    const lazo = estilo.lazo;
+    const s = W * (conPapel ? 0.055 : 0.05) * suavizar(a);
+    const [cr, cg, cb] = lazo.color;
+    const cola = conPapel ? 2.8 : 2.0;
+
+    p.push();
+    p.translate(NUDO.x * W, NUDO.y * H);
+    p.noStroke();
+    p.fill(cr, cg, cb, 255 * a);
+    p.triangle(0, 0, -s * 0.9, s * cola, -s * 0.3, s * (cola + 0.1));
+    p.triangle(0, 0, s * 0.9, s * cola, s * 0.3, s * (cola + 0.1));
+    p.ellipse(-s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
+    p.ellipse(s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
+    if (lazo.borde) {
+      p.noFill();
+      p.stroke(...lazo.borde, 220 * a);
+      p.strokeWeight(Math.max(1, s * 0.07));
+      p.ellipse(-s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
+      p.ellipse(s * 0.8, -s * 0.1, s * 1.6, s * 0.9);
+      p.noStroke();
+    }
+    p.fill(cr * 0.55, cg * 0.55, cb * 0.55, 255 * a);
+    p.ellipse(-s * 0.8, -s * 0.1, s * 0.8, s * 0.35);
+    p.ellipse(s * 0.8, -s * 0.1, s * 0.8, s * 0.35);
+    const centro = lazo.borde || [cr * 0.87, cg * 0.87, cb * 0.87];
+    p.fill(...centro, 255 * a);
+    p.circle(0, 0, s * 0.7);
+    p.pop();
+  }
+
+  // Papel de regalo: una capa detrás de los tallos y otra delante
+  function dibujarPapel(t, capa) {
+    const e = suavizar(progreso(t, capa === "atras" ? 1.0 : 1.3, 0.9));
+    if (e <= 0) return;
+    const papel = estilo.papel;
+    const desplazamiento = (1 - e) * 0.05 * H;
+    const P = (x, y) => [x * W, y * H + desplazamiento];
+    p.noStroke();
+
+    if (capa === "atras") {
+      p.fill(...papel.fondo, 235 * e);
+      for (let k = 0; k <= 14; k++) {
+        const [x, y] = P(p.lerp(0.18, 0.82, k / 14), 0.555);
+        p.circle(x, y, W * 0.05);
+      }
+      p.quad(...P(0.18, 0.555), ...P(0.82, 0.555), ...P(0.57, 0.97), ...P(0.43, 0.97));
+      return;
+    }
+
+    // Capa delantera: festón de encaje + papel con degradado
+    const [ax, ay] = P(0.26, 0.63);
+    const [bx, by] = P(0.74, 0.63);
+    const [cx, cy] = P(0.54, 0.985);
+    const [dx, dy] = P(0.46, 0.985);
+
+    p.fill(...papel.claro, 245 * e);
+    for (let k = 0; k <= 12; k++) {
+      p.circle(p.lerp(ax, bx, k / 12), ay, W * 0.04);
+    }
+
+    const ctx = p.drawingContext;
+    const degradado = ctx.createLinearGradient(0, ay, 0, cy);
+    degradado.addColorStop(0, rgba(papel.claro, 0.97 * e));
+    degradado.addColorStop(1, rgba(papel.oscuro, 0.99 * e));
+    ctx.fillStyle = degradado;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
+    ctx.lineTo(cx, cy);
+    ctx.lineTo(dx, dy);
+    ctx.closePath();
+    ctx.fill();
+
+    // pliegue central y bordes
+    p.stroke(255, 255, 255, 28 * e);
+    p.strokeWeight(Math.max(1, W * 0.004));
+    p.line((ax + bx) / 2 - W * 0.04, ay, (cx + dx) / 2, cy);
+    p.stroke(...papel.borde, 210 * e);
+    p.strokeWeight(Math.max(1, W * 0.003));
+    p.line(ax, ay, dx, dy);
+    p.line(bx, by, cx, cy);
+    p.line(ax, ay, bx, by);
+    p.noStroke();
+
+    p.fill(...papel.borde, 130 * e);
+    motas.forEach((m) => {
+      const [x, y] = P(m.x, m.y);
+      p.circle(x, y, W * 0.006 * m.r);
+    });
+  }
+
+  function dibujarFondoEspecial(t) {
+    // aura dorada y rosada detrás del ramo (radios menores que la distancia al borde)
+    const a = progreso(t, 0.6, 2);
+    brillo(0.5 * W, 0.4 * H, 0.46 * W, "#f3c97a", 0.16 * a);
+    brillo(0.5 * W, 0.34 * H, 0.32 * W, "#f7b8cc", 0.12 * a);
+
+    const aparicion = progreso(t, 0.5, 1.5);
+    p.noStroke();
+    estrellas.forEach((s) => {
+      const titila = reducirMovimiento ? 0.8 : 0.55 + 0.45 * Math.sin(t * s.vel + s.fase);
+      p.fill(255, 236, 190, 230 * titila * aparicion);
+      estrella4(s.x * W, s.y * H, s.tam * W * (0.6 + 0.4 * titila));
+    });
+  }
+
+  function dibujarPetalosCayendo(t) {
+    const a = progreso(t, 2.6, 1.5);
+    if (a <= 0) return;
+    p.noStroke();
+    petalos.forEach((q) => {
+      if (!reducirMovimiento) {
+        q.y += q.vel;
+        q.giro += q.vgiro;
+        if (q.y > 1.05) Object.assign(q, nuevoPetalo(false));
+      }
+      const x = (q.x + Math.sin(t * 0.8 + q.fase) * 0.03) * W;
+      const s = q.tam * W;
+      p.push();
+      p.translate(x, q.y * H);
+      p.rotate(q.giro);
+      p.scale(Math.max(0.2, Math.abs(Math.cos(t * 1.5 + q.fase))), 1);
+      p.fill(247, 184, 204, 210 * a);
+      p.ellipse(0, 0, s, s * 0.7);
+      p.fill(255, 226, 236, 160 * a);
+      p.ellipse(-s * 0.12, -s * 0.08, s * 0.45, s * 0.3);
+      p.pop();
+    });
+  }
 
   function dibujarFlor(m, t) {
     const e = rebote(progreso(t, m.retraso + DURACION_TALLO * 0.75, 0.8));
